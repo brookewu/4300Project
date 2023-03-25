@@ -13,7 +13,7 @@ CREATE TABLE attributes(
   ,postal_code   INTEGER 
   ,stars         NUMERIC(3,1) NOT NULL
   ,categories    VARCHAR(503) NOT NULL
-  ,useful_review VARCHAR(4999) NOT NULL -- TODO: Fix char overflow ruining last col
+  ,useful_review VARCHAR(4999) NOT NULL -- TODO: Fix char overflow ruining last col TEXT, SMALL TEXT, BIG TEXT 65000, normalization 
   ,useful_count  INTEGER  NOT NULL 
 );
  -- Note: automatically null/0 when userful_review overflows char limit https://stackoverflow.com/questions/23712943/what-happens-when-you-store-a-value-in-a-varchar-which-is-over-the-limit-in-sql

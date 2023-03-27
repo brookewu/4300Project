@@ -1,72 +1,100 @@
-<!doctype html>
+<!DOCTYPE html>
 <title>{% block title %}{% endblock %} - Flaskr</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
-    rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+	href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
+	rel="stylesheet"
+/>
 
 <body>
-    <div class="full-body-container">
-        <div class="top-text">
-            <div class="google-colors">
-                <h1 id="google-c">C</h1>
-                <h1 id="google-s">S</h1>
-                <h1 id="google-4">4</h1>
-                <h1 id="google-3">3</h1>
-                <h1 id="google-0-1">0</h1>
-                <h1 id="google-0-2">0</h1>
-            </div>
-            <div class="input-box" onclick="sendFocus()">
-                <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                <input placeholder="Search for a Keeping up with the Kardashians episode" id="filter-text-val"
-                    onkeyup="filterText()">
-            </div>
-        </div>
-        <div id="answer-box">
+	<div class="full-body-container">
+		<div class="top-text">
+			<div class="google-colors">
+				<h1 id="title-color">CuisineCheck</h1>
+				<p id="small-title">Philladelphia</p>
+			</div>
+			<div class="search-box" onclick="sendFocus()">
+				<input
+					placeholder="Search for your favorite restaurant"
+					id="filter-text-val"
+					onkeyup="filterText()"
+				/>
+			</div>
+		</div>
+		<div id="answer-box"></div>
+	</div>
 
-        </div>
-    </div>
+	<script>
+		function answerBoxTemplate(
+			name,
+			address,
+			stars,
+			categories,
+			review,
+			match
+		) {
+			if (document.getElementById('filter-text-val').value == '') {
+				return ``;
+			}
+			const bgColor = match ? '#fff6f6' : '#f9f9f9';
+			return `<div class='border box-template' style='background-color: ${bgColor};'>
+                <h3 class='episode-title'>${name}</h3>
+                <p class='company-address'>${address}</p>
+                <p class='star-ratings'>${'<span></span>'.repeat(stars)}</p>
+                <p class='category-list'>${categories}</p>
+                <p class='review' style='margin-top: 15px;'>Most useful review: ${review}</p>
+            </div>`;
+		}
 
-    <script>
+		function sendFocus() {
+			document.getElementById('filter-text-val').focus();
+		}
 
-        function answerBoxTemplate(title, titleDesc) {
-            return `<div class=''>
-                <h3 class='episode-title'>${title}</h3>
-                <p class='episode-desc'>${titleDesc}</p>
-            </div>`
-        }
-
-        function sendFocus() {
-            document.getElementById('filter-text-val').focus()
-        }
-
-        function filterText() {
-            document.getElementById("answer-box").innerHTML = ""
-            console.log(document.getElementById("filter-text-val").value)
-            fetch("/episodes?" + new URLSearchParams({ title: document.getElementById("filter-text-val").value }).toString())
-                .then((response) => response.json())
-                .then((data) => data.forEach((row, index) => {
-                    if (index == 0) {
-                        // Query company
-                        console.log("User query company info: ", row)
-                        let tempDiv = document.createElement("div")
-                        tempDiv.innerHTML = answerBoxTemplate(row.name, row.useful_review) // TODO: Change to show more attributes than just name and useful review
-                        document.getElementById("answer-box").appendChild(tempDiv)
-                    }
-                    else {
-                        row.forEach((r, i) => {
-                            // Matched comapny
-                            console.log("Match #", i + 1, " company info: ", r)
-                            let tempDiv = document.createElement("div")
-                            tempDiv.innerHTML = answerBoxTemplate(r.name, r.useful_review) // TODO: Change to show more attributes than just name and useful review
-                            document.getElementById("answer-box").appendChild(tempDiv)
-                        })
-                    }
-
-                }));
-
-        }
-
-    </script>
+		function filterText() {
+			document.getElementById('answer-box').innerHTML = '';
+			console.log(document.getElementById('filter-text-val').value);
+			fetch(
+				'/episodes?' +
+					new URLSearchParams({
+						title: document.getElementById('filter-text-val').value,
+					}).toString()
+			)
+				.then((response) => response.json())
+				.then((data) =>
+					data.forEach((row, index) => {
+						if (index == 0) {
+							// Query company
+							console.log('User query company info: ', row);
+							let tempDiv = document.createElement('div');
+							tempDiv.innerHTML = answerBoxTemplate(
+								row.name,
+								row.address,
+								row.stars,
+								row.categories,
+								row.useful_review,
+								true
+							); // TODO: Change to show more attributes than just name and useful review
+							document.getElementById('answer-box').appendChild(tempDiv);
+						} else {
+							row.forEach((r, i) => {
+								// Matched comapny
+								console.log('Match #', i + 1, ' company info: ', r);
+								let tempDiv = document.createElement('div');
+								tempDiv.innerHTML = answerBoxTemplate(
+									r.name,
+									r.address,
+									r.stars,
+									r.categories,
+									r.useful_review,
+									false
+								); // TODO: Change to show more attributes than just name and useful review
+								document.getElementById('answer-box').appendChild(tempDiv);
+							});
+						}
+					})
+				);
+		}
+	</script>
 </body>

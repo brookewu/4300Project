@@ -1,37 +1,63 @@
-SET GLOBAL LOCAL_INFILE=1;
+-- MySQL dump 10.13  Distrib 8.0.31, for macos12.6 (x86_64)
+--
+-- Host: localhost    Database: restaurants
+-- ------------------------------------------------------
+-- Server version	8.0.31
 
-CREATE DATABASE IF NOT EXISTS restaurants;
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-USE restaurants;
-DROP TABLE IF EXISTS attributes;
-DROP TABLE IF EXISTS scores;
+--
+-- Table structure for table `attributes`
+--
 
-CREATE TABLE attributes(
-   id            INTEGER  NOT NULL PRIMARY KEY 
-  ,name          VARCHAR(51) NOT NULL
-  ,address       VARCHAR(75)
-  ,postal_code   INTEGER 
-  ,stars         FLOAT(3,1) NOT NULL
-  ,categories    VARCHAR(503) NOT NULL
-  ,useful_review LONGTEXT NOT NULL -- TODO: Fix char overflow ruining last col TEXT, SMALL TEXT, BIG TEXT 65000, normalization 
-  ,useful_count  INTEGER  NOT NULL 
-);
- -- Note: automatically null/0 when userful_review overflows char limit https://stackoverflow.com/questions/23712943/what-happens-when-you-store-a-value-in-a-varchar-which-is-over-the-limit-in-sql
+DROP TABLE IF EXISTS `attributes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `attributes` (
+  `id` int NOT NULL,
+  `name` varchar(51) NOT NULL,
+  `address` varchar(75) DEFAULT NULL,
+  `postal_code` int DEFAULT NULL,
+  `stars` float(3,1) NOT NULL,
+  `categories` varchar(503) NOT NULL,
+  `useful_review` longtext NOT NULL,
+  `useful_count` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
---  load data local infile 'preliminary_work/business_attributes.csv' into table attributes
---  fields terminated by ','
---  enclosed by '"'
---  lines terminated by '\n'
---  (FIELD1, name, address, postal_code, stars, categories, useful_review,useful_count);
+--
+-- Table structure for table `scores`
+--
 
+DROP TABLE IF EXISTS `scores`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `scores` (
+  `id` int NOT NULL,
+  `company_one` varchar(51) NOT NULL,
+  `company_two` varchar(51) NOT NULL,
+  `jaccard_score` float(5,4) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
-CREATE TABLE scores(
-   id             INTEGER NOT NULL PRIMARY KEY
-  ,company_one    VARCHAR(51) NOT NULL
-  ,company_two    VARCHAR(51) NOT NULL
-  ,jaccard_score FLOAT(5,4) NOT NULL
-);
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
-LOAD DATA LOCAL INFILE '../preliminary_work/business_attributes.csv'  INTO TABLE attributes  FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
-
-LOAD DATA LOCAL INFILE '../preliminary_work/top_jaccard_better.csv'  INTO TABLE scores FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
+-- Dump completed on 2023-03-27 17:12:14

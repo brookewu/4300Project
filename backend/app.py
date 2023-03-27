@@ -31,56 +31,48 @@ CORS(app)
 # but if you decide to use SQLAlchemy ORM framework,
 # there's a much better and cleaner way to do this
 
-def select_business_attr_for(name):
-    query_sql = f"""SELECT * FROM attributes WHERE LOWER( name ) LIKE '%%{name.lower()}%%' limit 1"""
-    keys = ["id", "name", "address", "postal_code", "stars", "categories", "useful_review", "useful_count"]
-    data = mysql_engine.query_selector(query_sql)
-    return [dict(zip(keys, i)) for i in data]
+# def select_business_attr_for(name):
+#     query_sql = f"""SELECT * FROM attributes WHERE LOWER( name ) LIKE '%%{name.lower()}%%' limit 1"""
+#     keys = ["id", "name", "address", "postal_code", "stars", "categories", "useful_review", "useful_count"]
+#     data = mysql_engine.query_selector(query_sql)
+#     return [dict(zip(keys, i)) for i in data]
 
-def get_business_attribute_cols():
-    column_lst_sql = f"""desc attributes"""
-    column_lst_data = mysql_engine.query_selector(column_lst_sql)
-    keys = [x[0] for x in column_lst_data]
-    return keys
+# def get_business_attribute_cols():
+#     column_lst_sql = f"""desc attributes"""
+#     column_lst_data = mysql_engine.query_selector(column_lst_sql)
+#     keys = [x[0] for x in column_lst_data]
+#     return keys
 
 
 def sql_search(episode):
-
-    query_sql = f"""SELECT * FROM scores LEFT OUTER JOIN attributes ON (scores.company_one = attributes.name) WHERE LOWER( attributes.name ) LIKE '%%{episode.lower()}%%' ORDER BY scores.jaccard_score DESC limit 10"""
+    # keys = ['company_one', 'company_two', 'address', 'postal_code', 'stars', 'categories', 'useful_review', 'useful_count']
+    query_sql = f"""SELECT company_one, company_two, address, postal_code, stars, categories, useful_review, useful_count FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) WHERE LOWER( scores.company_one ) LIKE '%%{episode.lower()}%%' ORDER BY scores.jaccard_score DESC limit 10"""
     data = mysql_engine.query_selector(query_sql)
-    keys = get_business_attribute_cols()
-
-    # mapping = [dict(zip(keys, i)) for i in data][0]
-    # # mysql_engine.query_ender()
-    # seialized_mapping = {}
-
-
-
-    # query = "INSERT INTO tablename (text_for_field1, text_for_field2, text_for_field3, text_for_field4) VALUES (%s, %s, %s, %s)"
-
-
-    # company_attr = select_business_attr_for(mapping['company'])[0]
-    # company_attr = select_business_attr_for("5 fresh burger stop")[0]
-    # seialized_mapping['company'] = { "name": mapping['company'], "useful_review":  company_attr["useful_review"]}
-    # seialized_mapping['company'] = { "name":"5 fresh burger stop", "useful_review":  company_attr["useful_review"]}
-
-    # for d_key in desired_keys:
-    #     attr = select_business_attr_for(mapping[d_key])
-    #     seialized_mapping[d_key] = mapping[d_key]
-    
-
-
-
-
-    # query_sql = f"""SELECT * FROM attributes WHERE LOWER( name ) LIKE '%%{episode.lower()}%%' limit 10"""
-    # query_sql = f"""SELECT * FROM topjaccard WHERE LOWER( company ) LIKE '%%{episode.lower()}%%' limit 10"""
-    # keys = ["id", "title", "descr"]
-    # keys = ["id", "name", "address", "postal_code", "stars", "categories", "useful_review", "useful_count"]
-
-
-    # data = mysql_engine.query_selector(query_sql)
-    return json.dumps([dict(zip(keys, i)) for i in data], default=str)
-    # return json.dumps([seialized_mapping], default=str)
+    query_business_attr_sql = query_sql = f"""SELECT * FROM attributes WHERE LOWER( name ) LIKE '%%{episode.lower()}%%' limit 1"""
+    q_data = mysql_engine.query_selector(query_business_attr_sql)
+    serialized = []
+    for x in q_data:
+        serialized.append({
+                "name": x[1],
+                "address": x[2],
+                "postal_code": x[3],
+                "stars": x[4],
+                "categories": x[5],
+                "useful_review": x[6],
+                "useful_count": x[7],})
+    matches = []
+    for x in data:
+        matches.append({
+            "name": x[1],
+            "address": x[2],
+            "postal_code": x[3],
+            "stars": x[4],
+            "categories": x[5],
+            "useful_review": x[6],
+            "useful_count": x[7],
+        })
+    serialized.append(matches)
+    return json.dumps(serialized, default=str)
 
 
 @app.route("/")

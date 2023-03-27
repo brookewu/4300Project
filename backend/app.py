@@ -21,7 +21,7 @@ mysql_engine = MySQLDatabaseHandler(
 
 # Path to init.sql file. This file can be replaced with your own file for testing on localhost, but do NOT move the init.sql file
 # mysql_engine.load_file_into_db()
-db_path = os.path.join(os.environ['ROOT_PATH'],'init.sql')
+db_path = os.path.join(os.environ['ROOT_PATH'],'restaurants.sql')
 mysql_engine.load_file_into_db(file_path = db_path)
 
 app = Flask(__name__)
@@ -66,7 +66,7 @@ def sql_search(episode):
     query_sql = f"""SELECT company_one, company_two, address, postal_code, stars, categories, useful_review, useful_count, jaccard_score FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) WHERE LOWER( scores.company_one ) LIKE '%%{episode.lower()}%%' ORDER BY scores.jaccard_score DESC limit 10"""
     data = mysql_engine.query_selector(query_sql)
     # query_business_attr_sql = query_sql = f"""SELECT * FROM attributes WHERE LOWER( name ) LIKE '%%{episode.lower()}%%' limit 1"""
-    query_business_attr_sql = query_sql = f"""SELECT company_one, address, postal_code, stars, categories, useful_review, useful_count FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) WHERE LOWER( scores.company_one ) LIKE '%%{episode.lower()}%%' limit 1"""
+    query_business_attr_sql = query_sql = f"""SELECT company_one, address, postal_code, stars, categories, useful_review, useful_count FROM scores LEFT OUTER JOIN attributes ON (scores.company_one = attributes.name) WHERE LOWER( scores.company_one ) LIKE '%%{episode.lower()}%%' limit 1"""
     
     q_data = mysql_engine.query_selector(query_business_attr_sql)
     serialized = []

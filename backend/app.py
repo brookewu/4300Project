@@ -63,7 +63,7 @@ def sql_search(episode):
         ]
     """
     # keys = ['company_one', 'company_two', 'address', 'postal_code', 'stars', 'categories', 'useful_review', 'useful_count']
-    query_sql = f"""SELECT company_one, company_two, address, postal_code, stars, categories, useful_review, useful_count FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) WHERE LOWER( scores.company_one ) LIKE '%%{episode.lower()}%%' ORDER BY scores.jaccard_score DESC limit 10"""
+    query_sql = f"""SELECT company_one, company_two, address, postal_code, stars, categories, useful_review, useful_count, jaccard_score FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) WHERE LOWER( scores.company_one ) LIKE '%%{episode.lower()}%%' ORDER BY scores.jaccard_score DESC limit 10"""
     data = mysql_engine.query_selector(query_sql)
     # query_business_attr_sql = query_sql = f"""SELECT * FROM attributes WHERE LOWER( name ) LIKE '%%{episode.lower()}%%' limit 1"""
     query_business_attr_sql = query_sql = f"""SELECT company_one, address, postal_code, stars, categories, useful_review, useful_count FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) WHERE LOWER( scores.company_one ) LIKE '%%{episode.lower()}%%' limit 1"""
@@ -89,6 +89,7 @@ def sql_search(episode):
             "categories": x[5],
             "useful_review": x[6],
             "useful_count": x[7],
+            "jaccard_score": x[8]
         })
     serialized.append(matches)
     return json.dumps(serialized, default=str)
@@ -105,4 +106,4 @@ def episodes_search():
     return sql_search(text)
 
 
-app.run(debug=True)
+# app.run(debug=True)

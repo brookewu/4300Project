@@ -35,34 +35,20 @@ def select_business_attr_for(name):
     query_sql = f"""SELECT * FROM attributes WHERE LOWER( name ) LIKE '%%{name.lower()}%%' limit 1"""
     keys = ["id", "name", "address", "postal_code", "stars", "categories", "useful_review", "useful_count"]
     data = mysql_engine.query_selector(query_sql)
-    mysql_engine.query_ender()
     return [dict(zip(keys, i)) for i in data]
 
-def get_top_jaccard_cols():
-    column_lst_sql = f"""desc topjaccard;"""
+def get_business_attribute_cols():
+    column_lst_sql = f"""desc attributes"""
     column_lst_data = mysql_engine.query_selector(column_lst_sql)
-    mysql_engine.query_ender()
-    print(column_lst_data)
-    keys = [description[0] for description in column_lst_data]
-    print("keys ",keys)
+    keys = [x[0] for x in column_lst_data]
     return keys
 
 
 def sql_search(episode):
-    # keys = ['FIELD1', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th', '11th', '12th', '13th', '14th', '15th', '16th', '17th', '18th', '19th', '20th', '21st', '22nd', '23rd', '24th', '25th', '26th', '27th', '28th', '29th', '30th', '31st', '32nd', '33rd', '34th', '35th', '36th', '37th', '38th', '39th', '40th', '41st', '42nd', '43rd', '44th', '45th', '46th', '47th', '48th', '49th', '50th', 'company']
-    # desired_keys = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th']
-    
-    keys = get_top_jaccard_cols()
-    # show_table_sql = f"""show tables;"""
-    # show_table_data = mysql_engine.query_selector(show_table_sql)
-    # for x in show_table_data:
-    #     print(x)
 
-
-    # keys = get_top_jaccard_cols()
-    query_sql = f"""SELECT * FROM topjaccard WHERE LOWER( company ) LIKE '%%{episode.lower()}%%' limit 10"""
+    query_sql = f"""SELECT * FROM scores LEFT OUTER JOIN attributes ON (scores.company_one = attributes.name) WHERE LOWER( attributes.name ) LIKE '%%{episode.lower()}%%' ORDER BY scores.jaccard_score DESC limit 10"""
     data = mysql_engine.query_selector(query_sql)
-
+    keys = get_business_attribute_cols()
 
     # mapping = [dict(zip(keys, i)) for i in data][0]
     # # mysql_engine.query_ender()

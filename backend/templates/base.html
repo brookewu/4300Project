@@ -46,11 +46,24 @@
             console.log(document.getElementById("filter-text-val").value)
             fetch("/episodes?" + new URLSearchParams({ title: document.getElementById("filter-text-val").value }).toString())
                 .then((response) => response.json())
-                .then((data) => data.forEach(row => {
-                    console.log(row)
-                    let tempDiv = document.createElement("div")
-                    tempDiv.innerHTML = answerBoxTemplate(row.company.name, row.company.useful_review) // TODO: Change to show more attributes than just name and useful review
-                    document.getElementById("answer-box").appendChild(tempDiv)
+                .then((data) => data.forEach((row, index) => {
+                    if (index == 0) {
+                        // Query company
+                        console.log("User query company info: ", row)
+                        let tempDiv = document.createElement("div")
+                        tempDiv.innerHTML = answerBoxTemplate(row.name, row.useful_review) // TODO: Change to show more attributes than just name and useful review
+                        document.getElementById("answer-box").appendChild(tempDiv)
+                    }
+                    else {
+                        row.forEach((r, i) => {
+                            // Matched comapny
+                            console.log("Match #", i + 1, " company info: ", r)
+                            let tempDiv = document.createElement("div")
+                            tempDiv.innerHTML = answerBoxTemplate(r.name, r.useful_review) // TODO: Change to show more attributes than just name and useful review
+                            document.getElementById("answer-box").appendChild(tempDiv)
+                        })
+                    }
+
                 }));
 
         }

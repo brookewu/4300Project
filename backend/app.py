@@ -45,6 +45,23 @@ CORS(app)
 
 
 def sql_search(episode):
+    """
+    Example response for query "t"
+    [
+        {'name': 'Tuna Bar', 'address': '205 Race St', 'postal_code': 19106, 'stars': 4.0, 'categories': 'Sushi Bars|Restaurants|Japanese', 'useful_review': '"Finally got a chance to check this place out for an early dinner on a weeknight and I loved it! I was really craving sushi so when my girlfriend recommended this place I was totally into it. I definitely did not expect to have a new favorite sushi spot!', 'useful_count': 0}, 
+        [
+            {'name': ' Fairmount- Philadelphia"', 'address': None, 'postal_code': None, 'stars': None, 'categories': None, 'useful_review': None, 'useful_count': None}, 
+            {'name': 'México Lindo', 'address': '700 Moore St', 'postal_code': 19148, 'stars': 4.5, 'categories': 'Mexican|Restaurants', 'useful_review': '"What does a one $ sign', 'useful_count': 0}, 
+            {'name': 'El Limon', 'address': '4514 City Ave', 'postal_code': 19131, 'stars': 4.0, 'categories': 'Mexican|Restaurants', 'useful_review': '"Absolutely fire. Just thinking about this is making me hungry... damn this diet.', 'useful_count': 0}, 
+            {'name': 'Qdoba Mexican Grill', 'address': '1900 Chestnut St', 'postal_code': 19103, 'stars': 3.0, 'categories': 'Restaurants|Mexican', 'useful_review': '"I must have deleted and retyped what I\'m about to say 30 times before hitting post because it sounds extremely erotic in all the wrong ways. But here goes nothing.  Qdoba is stingy with the meat', 'useful_count': 0}, 
+            {'name': 'La Fonda De Teresita', 'address': '1446 S 8th St', 'postal_code': 19147, 'stars': 4.0, 'categories': 'Mexican|Restaurants', 'useful_review': '"I don\'t normally jump the fun on reviewing anything but I just had the best steak tortas from here that I have ever had. Seriously', 'useful_count': 0}, 
+            {'name': "Teresa's Mesa", 'address': '727 S 2nd St', 'postal_code': 19147, 'stars': 4.0, 'categories': 'Restaurants|Mexican', 'useful_review': '"This is a great new addition to Queen Village! I actually work very close to their other restaurant Los Camaradas. My coworkers and I frequent there often for their happy hour after work. #BestinphillyNACHOS. The first time I came in with my neighbor and noticed on the menu camaradas nachos and was pleasantly surprised to find out it was the same owners!', 'useful_count': 0}, 
+            {'name': 'El Guero  Mexican Food Truck', 'address': '1256 W Montgomery Ave', 'postal_code': 19122, 'stars': 5.0, 'categories': 'Restaurants|Mexican', 'useful_review': '"AUTHENTIC Mexican food.  I just had the shrimp tacos', 'useful_count': 0}, 
+            {'name': 'Los Jimenez', 'address': '2654 S 6th St', 'postal_code': 19148, 'stars': 4.5, 'categories': 'Restaurants|Mexican', 'useful_review': '"Great decision for a late lunch on Sunday!  My fiancee and I came in with the intent of trying the al pastor tacos that we heard about through philly.com.  ', 'useful_count': 0}, 
+            {'name': 'El Purepecha', 'address': '315 N 12th St', 'postal_code': 19107, 'stars': 4.5, 'categories': 'Mexican|Restaurants', 'useful_review': '"Solid Mexican hole in the wall type joint. Friendly staff', 'useful_count': 0}, 
+            {'name': 'Smiths Restaurant and Bar', 'address': '"39 S 19th St', 'postal_code': 0, 'stars': 99.9, 'categories': '3.0', 'useful_review': 'American (New)|Bars|Nightlife|Lounges|Restaurants', 'useful_count': 0}]
+        ]
+    """
     # keys = ['company_one', 'company_two', 'address', 'postal_code', 'stars', 'categories', 'useful_review', 'useful_count']
     query_sql = f"""SELECT company_one, company_two, address, postal_code, stars, categories, useful_review, useful_count FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) WHERE LOWER( scores.company_one ) LIKE '%%{episode.lower()}%%' ORDER BY scores.jaccard_score DESC limit 10"""
     data = mysql_engine.query_selector(query_sql)

@@ -31,7 +31,7 @@ services:
                         MYSQL_DATABASE: restaurants
                         MYSQL_ROOT_PASSWORD: admin
                 volumes:
-                        - ./init.sql:/docker-entrypoint-initdb.d/restaurants.sql
+                        - ./restaurants.sql:/docker-entrypoint-initdb.d/restaurants.sql
                 networks:
                         - flask_network
 volumes:

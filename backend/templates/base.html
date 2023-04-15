@@ -52,7 +52,7 @@
 			var searchParams = new URLSearchParams({
 				title: document.getElementById('filter-text-val').value
 			})
-			searchParams.append("blacklist", "Wine Thief")
+			searchParams.append("blacklist", "Wine Thief") // # Temp example for search "Marathon Grill"
 			fetch(
 				'/episodes?' + searchParams.toString()
 			)

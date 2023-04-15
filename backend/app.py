@@ -44,7 +44,7 @@ CORS(app)
 #     return keys
 
 
-def sql_search(episode):
+def sql_search(episode, blacklist):
     """
     Example response for query "t"
     [
@@ -62,10 +62,10 @@ def sql_search(episode):
             {'name': 'Smiths Restaurant and Bar', 'address': '"39 S 19th St', 'postal_code': 0, 'stars': 99.9, 'categories': '3.0', 'useful_review': 'American (New)|Bars|Nightlife|Lounges|Restaurants', 'useful_count': 0}]
         ]
     """
-    blacklist = ["Wine Thief", "Athenian Restaurant"] # Example for search "Marathon Grill"
-    blacklist = tuple([x.lower() for x in blacklist])
+    # blacklist = ["Wine Thief", "Athenian Restaurant"] # Example for search "Marathon Grill"
+    print(blacklist)
     # keys = ['company_one', 'company_two', 'address', 'postal_code', 'stars', 'categories', 'useful_review', 'useful_count']
-    query_sql = f"""SELECT company_one, company_two, address, postal_code, stars, categories, useful_review, useful_count, jaccard_score FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) WHERE LOWER( scores.company_one ) LIKE '%%{episode.lower()}%%' AND LOWER( scores.company_two ) NOT IN {blacklist} ORDER BY scores.jaccard_score DESC limit 5"""
+    query_sql = f"""SELECT company_one, company_two, address, postal_code, stars, categories, useful_review, useful_count, jaccard_score FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) WHERE LOWER( scores.company_one ) LIKE '%%{episode.lower()}%%' AND LOWER( scores.company_two ) NOT LIKE '%%{blacklist.lower()}%%' ORDER BY scores.jaccard_score DESC limit 5"""
     data = mysql_engine.query_selector(query_sql)
     # query_business_attr_sql = query_sql = f"""SELECT * FROM attributes WHERE LOWER( name ) LIKE '%%{episode.lower()}%%' limit 1"""
     query_business_attr_sql = f"""SELECT company_one, address, postal_code, stars, categories, useful_review, useful_count FROM scores LEFT OUTER JOIN attributes ON (scores.company_one = attributes.name) WHERE LOWER( scores.company_one ) LIKE '%%{episode.lower()}%%' limit 1"""
@@ -106,7 +106,8 @@ def home():
 @app.route("/episodes")
 def episodes_search():
     text = request.args.get("title")
-    return sql_search(text)
+    blacklist = request.args.get("blacklist")
+    return sql_search(text, blacklist)
 
 
 app.run(debug=True)

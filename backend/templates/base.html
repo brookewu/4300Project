@@ -3,10 +3,8 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link
-	href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
-	rel="stylesheet"
-/>
+<link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
+	rel="stylesheet" />
 
 <body>
 	<div class="full-body-container">
@@ -16,11 +14,7 @@
 				<p id="small-title">Philladelphia</p>
 			</div>
 			<div class="search-box" onclick="sendFocus()">
-				<input
-					placeholder="Search for your favorite restaurant"
-					id="filter-text-val"
-					onkeyup="filterText()"
-				/>
+				<input placeholder="Search for your favorite restaurant" id="filter-text-val" onkeyup="filterText()" />
 			</div>
 		</div>
 		<div id="answer-box"></div>
@@ -55,11 +49,12 @@
 		function filterText() {
 			document.getElementById('answer-box').innerHTML = '';
 			console.log(document.getElementById('filter-text-val').value);
+			var searchParams = new URLSearchParams({
+				title: document.getElementById('filter-text-val').value
+			})
+			searchParams.append("blacklist", "Wine Thief")
 			fetch(
-				'/episodes?' +
-					new URLSearchParams({
-						title: document.getElementById('filter-text-val').value,
-					}).toString()
+				'/episodes?' + searchParams.toString()
 			)
 				.then((response) => response.json())
 				.then((data) =>

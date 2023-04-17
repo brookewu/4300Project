@@ -128,7 +128,7 @@ def home():
 @app.route("/episodes")
 def episodes_search():
     text = request.args.get("title")
-    blacklist = request.args.get("blacklist")
+    blacklist = request.args.get("blacklist") or " "
     min_rating = request.args.get("min_rating")
     return sql_search(text, blacklist, min_rating)
 

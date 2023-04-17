@@ -64,7 +64,7 @@
 
 #answer-box {
 	width: 700px;
-	margin-top: 50px;
+	margin-top: -250px;
 }
 
 .episode-title {
@@ -153,4 +153,74 @@
 	font-size: 16px;
 	border: none;
 	outline: none;
+}
+
+.container {
+	position: relative;
+	top: -100px;
+	left: 45%;
+	transform: translateX(-50%);
+}
+
+.input-heading {
+	text-align: center;
+	margin-bottom: 5px;
+	font-family: 'Courier', sans-serif;
+	font-size: 24px;
+	font-weight: 10;
+	color: #333;
+}
+
+.input-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 20px;
+	background-color: #f8f8f8;
+	padding: 20px;
+	border-radius: 10px;
+	box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+}
+
+.rating-box,
+.blacklist-box {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	max-width: 400px;
+}
+
+label {
+	font-family: 'Courier', sans-serif;
+	font-size: 18px;
+	font-weight: 10;
+	color: #333;
+}
+
+input[type='range'] {
+	width: 100%;
+}
+
+#rating-value {
+	font-family: 'Courier', sans-serif;
+	font-size: 20px;
+	font-weight: 10;
+	color: #333;
+}
+
+input[type='text'] {
+	width: 100%;
+	padding: 10px;
+	border-radius: 5px;
+	border: 1px solid #ccc;
+	font-family: 'Courier', sans-serif;
+	font-size: 18px;
+	color: #333;
+}
+
+input:focus {
+	outline: none;
+	border-color: blue;
 }

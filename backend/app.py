@@ -44,7 +44,7 @@ CORS(app)
 #     return keys
 
 
-def sql_search(episode, blacklist):
+def sql_search(episode, blacklist, min_rating):
     """
     Example response for query "t"
     [
@@ -64,11 +64,19 @@ def sql_search(episode, blacklist):
     """
     # blacklist = ["Wine Thief", "Athenian Restaurant"] # Example for search "Marathon Grill"
     print(blacklist)
+    print("min rating", min_rating)
     # keys = ['company_one', 'company_two', 'address', 'postal_code', 'stars', 'categories', 'useful_review', 'useful_count']
-    query_sql = f"""SELECT company_one, company_two, address, postal_code, stars, categories, useful_review, useful_count, jaccard_score FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) WHERE LOWER( scores.company_one ) LIKE '%%{episode.lower()}%%' AND LOWER( scores.company_two ) NOT LIKE '%%{blacklist.lower()}%%' ORDER BY scores.jaccard_score DESC limit 5"""
+    query_sql = f"""SELECT company_one, company_two, address, postal_code, stars, categories, useful_review, useful_count, jaccard_score 
+        FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) 
+        WHERE LOWER( scores.company_one ) LIKE '%%{episode.lower()}%%' 
+        AND LOWER( scores.company_two ) NOT LIKE '%%{blacklist.lower()}%%' 
+        AND attributes.stars >= {min_rating}
+        ORDER BY scores.jaccard_score DESC limit 5 """
     data = mysql_engine.query_selector(query_sql)
     # query_business_attr_sql = query_sql = f"""SELECT * FROM attributes WHERE LOWER( name ) LIKE '%%{episode.lower()}%%' limit 1"""
-    query_business_attr_sql = f"""SELECT company_one, address, postal_code, stars, categories, useful_review, useful_count FROM scores LEFT OUTER JOIN attributes ON (scores.company_one = attributes.name) WHERE LOWER( scores.company_one ) LIKE '%%{episode.lower()}%%' limit 1"""
+    query_business_attr_sql = f"""SELECT company_one, address, postal_code, stars, categories, useful_review, useful_count 
+        FROM scores LEFT OUTER JOIN attributes ON (scores.company_one = attributes.name) 
+        WHERE LOWER( scores.company_one ) LIKE '%%{episode.lower()}%%' limit 1"""
     
     q_data = mysql_engine.query_selector(query_business_attr_sql)
     serialized = []
@@ -107,7 +115,8 @@ def home():
 def episodes_search():
     text = request.args.get("title")
     blacklist = request.args.get("blacklist")
-    return sql_search(text, blacklist)
+    min_rating = request.args.get("min_rating")
+    return sql_search(text, blacklist, min_rating)
 
 
 app.run(debug=True)

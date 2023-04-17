@@ -11,7 +11,7 @@
 		<div class="top-text">
 			<div class="google-colors">
 				<h1 id="title-color">CuisineCheck</h1>
-				<p id="small-title">Philladelphia</p>
+				<p id="small-title">Philadelphia</p>
 			</div>
 			<div class="search-box" onclick="sendFocus()">
 				<input placeholder="Search for your favorite restaurant" id="filter-text-val" onkeyup="filterText()" />
@@ -53,6 +53,7 @@
 				title: document.getElementById('filter-text-val').value
 			})
 			searchParams.append("blacklist", "Wine Thief") // # Temp example for search "Marathon Grill"
+			searchParams.append("min_rating", 3) // temp value for min_rating
 			fetch(
 				'/episodes?' + searchParams.toString()
 			)

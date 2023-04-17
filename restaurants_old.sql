@@ -30,8 +30,9 @@ CREATE TABLE scores(
   ,company_one    VARCHAR(51) NOT NULL
   ,company_two    VARCHAR(51) NOT NULL
   ,jaccard_score FLOAT(5,4) NOT NULL
+  ,cosine_score FLOAT(5,4) NOT NULL
 );
 
 LOAD DATA LOCAL INFILE '../business_attributes.csv'  INTO TABLE attributes  FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
 
-LOAD DATA LOCAL INFILE '../top_jaccard_better.csv'  INTO TABLE scores FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
+LOAD DATA LOCAL INFILE '../jaccard_cosine_data.csv'  INTO TABLE scores FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';

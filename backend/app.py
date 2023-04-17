@@ -67,13 +67,22 @@ def sql_search(episode, blacklist, min_rating):
     print("min rating", min_rating)
     # keys = ['company_one', 'company_two', 'address', 'postal_code', 'stars', 'categories', 'useful_review', 'useful_count']
     query_sql = f"""SELECT company_one, company_two, address, postal_code, stars, 
-    categories, useful_review, useful_count, jaccard_score, cosine_score,
-        (jaccard_score * cosine_score) as combined_score 
+    categories, useful_review, useful_count, jaccard_score, cosine_score, 
+        (jaccard_score * cosine_score * ( 
+            IF( scores.company_two IN (
+                SELECT * FROM (
+                    SELECT company_two FROM scores
+                    WHERE LOWER( scores.company_one ) LIKE '%%{blacklist.lower()}%%' 
+                    ORDER BY (scores.jaccard_score * scores.cosine_score)
+                    DESC LIMIT 5
+                ) temp_table
+                ), 0.99 , 1))) as combined_score 
         FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) 
         WHERE LOWER( scores.company_one ) LIKE '%%{episode.lower()}%%' 
         AND LOWER( scores.company_two ) NOT LIKE '%%{blacklist.lower()}%%' 
         AND attributes.stars >= {min_rating}
-        ORDER BY combined_score DESC limit 5 """
+        ORDER BY combined_score
+        DESC limit 5 """
         # ORDER BY scores.jaccard_score DESC limit 5 """
     data = mysql_engine.query_selector(query_sql)
     # query_business_attr_sql = query_sql = f"""SELECT * FROM attributes WHERE LOWER( name ) LIKE '%%{episode.lower()}%%' limit 1"""
@@ -103,7 +112,9 @@ def sql_search(episode, blacklist, min_rating):
             "categories": x[5],
             "useful_review": x[6],
             "useful_count": x[7],
-            "jaccard_score": x[8]
+            "jaccard_score": x[8],
+            "cosine_score": x[9],
+            "combined_score": x[10]
         })
     serialized.append(matches)
     return json.dumps(serialized, default=str)

@@ -133,4 +133,4 @@ def episodes_search():
     return sql_search(text, blacklist, min_rating)
 
 
-app.run(debug=True)
+# app.run(debug=True)

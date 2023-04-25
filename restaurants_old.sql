@@ -31,6 +31,7 @@ CREATE TABLE scores(
   ,company_two    VARCHAR(51) NOT NULL
   ,jaccard_score FLOAT(5,4) NOT NULL
   ,cosine_score FLOAT(5,4) NOT NULL
+  ,svd_score    FLOAT(5,4) NOT NULL
 );
 
 LOAD DATA LOCAL INFILE '../business_attributes.csv'  INTO TABLE attributes  FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';

@@ -86,8 +86,8 @@ def sql_search(input, blacklist, min_rating):
 
     # Get matching restaurants and their attributes for the searched restaurant
     query_sql = f"""SELECT company_one, company_two, address, postal_code, stars, 
-    categories, useful_review, useful_count, jaccard_score, cosine_score, 
-        (jaccard_score * cosine_score * ( 
+    categories, useful_review, useful_count, jaccard_score, cosine_score, svd_score,
+        (jaccard_score * cosine_score * svd_score * ( 
             IF( scores.company_two IN (
                 SELECT * FROM (
                     SELECT company_two FROM scores
@@ -133,7 +133,8 @@ def sql_search(input, blacklist, min_rating):
             "useful_count": x[7],
             "jaccard_score": x[8],
             "cosine_score": x[9],
-            "combined_score": x[10],
+            "svd_score": x[10],
+            "combined_score": x[11],
             "searched_company": x[0]
         })
     serialized.append(matches)
@@ -153,4 +154,4 @@ def restaurant_search():
     return sql_search(text, blacklist, min_rating)
 
 
-# app.run(debug=True)
+app.run(debug=True)

@@ -44,7 +44,7 @@ CORS(app)
 #     return keys
 
 
-def sql_search(episode, blacklist, min_rating):
+def sql_search(input, blacklist, min_rating):
     """
     Example response for query "t"
     [
@@ -62,35 +62,55 @@ def sql_search(episode, blacklist, min_rating):
             {'name': 'Smiths Restaurant and Bar', 'address': '"39 S 19th St', 'postal_code': 0, 'stars': 99.9, 'categories': '3.0', 'useful_review': 'American (New)|Bars|Nightlife|Lounges|Restaurants', 'useful_count': 0}]
         ]
     """
-    # blacklist = ["Wine Thief", "Athenian Restaurant"] # Example for search "Marathon Grill"
-    print(blacklist)
-    print("min rating", min_rating)
-    # keys = ['company_one', 'company_two', 'address', 'postal_code', 'stars', 'categories', 'useful_review', 'useful_count']
+    # Match input with a restaurant to be our searched restaurant
+    searched_restaurant_sql = f"""SELECT company_one FROM scores WHERE LOWER( scores.company_one ) LIKE '{input.lower()}%%' LIMIT 1"""
+    searched_restaurant_data = mysql_engine.query_selector(searched_restaurant_sql)
+    searched_restaurant = ""
+    for x in searched_restaurant_data:
+        searched_restaurant = x[0]
+        break
+    searched_restaurant = searched_restaurant.replace("'", "\\'")
+    searched_restaurant = searched_restaurant.replace("&", "\&")
+
+    # Match blacklist input with a restaurant
+    blacklist_restaurant_sql = f"""SELECT company_one FROM scores WHERE LOWER( scores.company_one ) LIKE '{blacklist.lower()}%%' LIMIT 1"""
+    blacklist_restaurant_data = mysql_engine.query_selector(blacklist_restaurant_sql)
+    blacklist_restaurant = ""
+    for x in blacklist_restaurant_data:
+        blacklist_restaurant = x[0]
+        break
+    blacklist_restaurant = blacklist_restaurant.replace("'", "\\'")
+    blacklist_restaurant = blacklist_restaurant.replace("&", "\&")
+
+
+
+    # Get matching restaurants and their attributes for the searched restaurant
     query_sql = f"""SELECT company_one, company_two, address, postal_code, stars, 
-    categories, useful_review, useful_count, jaccard_score, cosine_score, 
-        (jaccard_score * cosine_score * ( 
+    categories, useful_review, useful_count, jaccard_score, cosine_score, svd_score,
+        (jaccard_score * cosine_score * svd_score * ( 
             IF( scores.company_two IN (
                 SELECT * FROM (
                     SELECT company_two FROM scores
-                    WHERE LOWER( scores.company_one ) LIKE '%%{blacklist.lower()}%%' 
+                    WHERE LOWER( scores.company_one ) LIKE '{blacklist_restaurant.lower()}' 
                     ORDER BY (scores.jaccard_score * scores.cosine_score)
                     DESC LIMIT 5
                 ) temp_table
                 ), 0.99 , 1))) as combined_score 
         FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) 
-        WHERE LOWER( scores.company_one ) LIKE '%%{episode.lower()}%%' 
-        AND LOWER( scores.company_two ) NOT LIKE '%%{blacklist.lower()}%%' 
+        WHERE LOWER( scores.company_one ) LIKE '{searched_restaurant.lower()}' 
+        AND LOWER( scores.company_two ) NOT LIKE '{blacklist_restaurant.lower()}' 
         AND attributes.stars >= {min_rating}
         ORDER BY combined_score
         DESC limit 5 """
-        # ORDER BY scores.jaccard_score DESC limit 5 """
-    data = mysql_engine.query_selector(query_sql)
-    # query_business_attr_sql = query_sql = f"""SELECT * FROM attributes WHERE LOWER( name ) LIKE '%%{episode.lower()}%%' limit 1"""
-    query_business_attr_sql = f"""SELECT company_one, address, postal_code, stars, categories, useful_review, useful_count 
-        FROM scores LEFT OUTER JOIN attributes ON (scores.company_one = attributes.name) 
-        WHERE LOWER( scores.company_one ) LIKE '%%{episode.lower()}%%' limit 1"""
     
+    data = mysql_engine.query_selector(query_sql)
+    
+    # Get attributes for the searched restaurant
+    query_business_attr_sql = query_sql = f"""SELECT name, address, postal_code, stars, 
+    categories, useful_review, useful_count FROM attributes WHERE LOWER( name ) LIKE '{searched_restaurant.lower()}' limit 1"""
     q_data = mysql_engine.query_selector(query_business_attr_sql)
+    
+    # Serialize results for json response
     serialized = []
     for x in q_data:
         serialized.append({
@@ -103,7 +123,6 @@ def sql_search(episode, blacklist, min_rating):
                 "useful_count": x[6],})
     matches = []
     for x in data:
-        # print(x)
         matches.append({
             "name": x[1],
             "address": x[2],
@@ -114,7 +133,9 @@ def sql_search(episode, blacklist, min_rating):
             "useful_count": x[7],
             "jaccard_score": x[8],
             "cosine_score": x[9],
-            "combined_score": x[10]
+            "svd_score": x[10],
+            "combined_score": x[11],
+            "searched_company": x[0]
         })
     serialized.append(matches)
     return json.dumps(serialized, default=str)
@@ -126,11 +147,11 @@ def home():
 
 
 @app.route("/episodes")
-def episodes_search():
+def restaurant_search():
     text = request.args.get("title")
     blacklist = request.args.get("blacklist") or " "
     min_rating = request.args.get("min_rating")
     return sql_search(text, blacklist, min_rating)
 
 
-# app.run(debug=True)
+app.run(debug=True)

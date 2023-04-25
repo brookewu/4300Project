@@ -35,4 +35,4 @@ CREATE TABLE scores(
 
 LOAD DATA LOCAL INFILE '../business_attributes.csv'  INTO TABLE attributes  FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
 
-LOAD DATA LOCAL INFILE '../jaccard_cosine_data.csv'  INTO TABLE scores FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
+LOAD DATA LOCAL INFILE '../jaccard_cosine_svd_scores.csv'  INTO TABLE scores FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';

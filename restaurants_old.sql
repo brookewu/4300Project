@@ -29,11 +29,11 @@ CREATE TABLE scores(
    id             INTEGER NOT NULL PRIMARY KEY
   ,company_one    VARCHAR(51) NOT NULL
   ,company_two    VARCHAR(51) NOT NULL
-  ,jaccard_score FLOAT(5,4) NOT NULL
   ,cosine_score FLOAT(5,4) NOT NULL
+  ,jaccard_score FLOAT(5,4) NOT NULL
   ,svd_score    FLOAT(5,4) NOT NULL
 );
 
 LOAD DATA LOCAL INFILE '../business_attributes.csv'  INTO TABLE attributes  FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
 
-LOAD DATA LOCAL INFILE '../jaccard_cosine_svd_scores.csv'  INTO TABLE scores FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
+LOAD DATA LOCAL INFILE '../scores_jcs.csv'  INTO TABLE scores FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';

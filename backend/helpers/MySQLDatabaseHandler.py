@@ -31,6 +31,7 @@ class MySQLDatabaseHandler(object):
         else:
             conn.execute(query)
         
+        conn.close()
 
     def query_selector(self,query):
         conn = self.lease_connection()

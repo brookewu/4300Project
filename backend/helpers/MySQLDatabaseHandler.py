@@ -36,6 +36,7 @@ class MySQLDatabaseHandler(object):
     def query_selector(self,query):
         conn = self.lease_connection()
         data = conn.execute(query)
+        conn.close()
         return data
 
     def load_file_into_db(self,file_path  = None):

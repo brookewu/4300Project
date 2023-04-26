@@ -87,7 +87,7 @@ def sql_search(input, blacklist, min_rating):
     # Get matching restaurants and their attributes for the searched restaurant
     query_sql = f"""SELECT company_one, company_two, address, postal_code, stars, 
     categories, useful_review, useful_count, jaccard_score, cosine_score, svd_score,
-        (jaccard_score * cosine_score * svd_score * ( 
+        ((0.3 * jaccard_score) + (0.35 * cosine_score) + (0.3 * svd_score) + ( 
             IF( scores.company_two IN (
                 SELECT * FROM (
                     SELECT company_two FROM scores
@@ -95,7 +95,7 @@ def sql_search(input, blacklist, min_rating):
                     ORDER BY (scores.jaccard_score * scores.cosine_score)
                     DESC LIMIT 5
                 ) temp_table
-                ), 0.99 , 1))) as combined_score 
+                ), 0.5 , 1))) as combined_score 
         FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) 
         WHERE LOWER( scores.company_one ) LIKE '{searched_restaurant.lower()}' 
         AND LOWER( scores.company_two ) NOT LIKE '{blacklist_restaurant.lower()}' 

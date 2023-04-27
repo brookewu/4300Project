@@ -150,8 +150,6 @@ def names():
     company_names = [row[0] for row in result]
     return company_names
 
-
-
 @app.route("/")
 def home():
     return render_template('base.html', title="sample html")

@@ -65,7 +65,7 @@ def get_cusines():
     return json.dumps(cusines, default=str)
     
 @app.route("/specialty")
-def get_cusines():
+def get_specialty():
     specialty_foods = {'Cupcakes', 'Teppanyaki', 'Hot Dogs', 'Donuts', 'Ramen', 'Fish & Chips', 'Wraps', 'Bagels', 'Falafel', 'Poke', 'Macarons', 'Shaved Ice', 'Noodles', 'Soup', 'Pretzels', 'Cheesesteaks', 'Kombucha', 'Chicken Wings', 'Japanese Curry', 'Hot Pot', 'Gelato', 'Tacos', 'Salad', 
                      'Burgers', 'Waffles', 'Beer', 'Empanadas', 'Acai Bowls', 'Sandwiches','Kebab', 'Bubble Tea', 'Fondue', 'Coffee & Tea', 'Fruits & Veggies',
                       'Pizza', 'Tapas/Small Plates', 'Ice Cream & Frozen Yogurt', 'Custom Cakes'}

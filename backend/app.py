@@ -1,6 +1,6 @@
 import json
 import os
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
 
@@ -44,11 +44,6 @@ CORS(app)
 #     keys = [x[0] for x in column_lst_data]
 #     return keys
 
-
-restaurant_names = ["hello"];
-
-with open('restaurant_names.json', 'w') as f:
-    json.dump(restaurant_names, f)
 
 def sql_search(input, blacklist, min_rating):
     """
@@ -145,6 +140,16 @@ def sql_search(input, blacklist, min_rating):
         })
     serialized.append(matches)
     return json.dumps(serialized, default=str)
+
+    
+
+@app.route("/get_names")
+def names():
+    query = "SELECT name FROM attributes WHERE name != '' AND name != 'name'"
+    result = mysql_engine.query_selector(query)
+    company_names = [row[0] for row in result]
+    return company_names
+
 
 
 @app.route("/")

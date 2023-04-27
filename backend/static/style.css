@@ -138,7 +138,7 @@
 	max-width: 600px;
 	height: 30px;
 	padding: 10px;
-	border-radius: 25px;
+
 	background-color: #fff;
 	box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
 }
@@ -223,4 +223,29 @@ input[type='text'] {
 input:focus {
 	outline: none;
 	border-color: blue;
+}
+
+#restaurant-list {
+	position: absolute;
+	width: 25%;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	background-color: #fff;
+
+	border-top: none;
+	max-height: 150px;
+	overflow-y: auto;
+	top: 34%;
+	left: 29.5%;
+}
+
+#restaurant-list li {
+	padding: 8px;
+	cursor: pointer;
+	font-family: 'Courier', sans-serif;
+}
+
+#restaurant-list li:hover {
+	background-color: #f1f1f1;
 }

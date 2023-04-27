@@ -154,6 +154,18 @@ def sql_search(input, blacklist, min_rating):
     return json.dumps(serialized, default=str)
    
 #------------------------------ ROUTES ------------------------------
+@app.route("/")
+def home():
+    return render_template('base.html', title="sample html")
+
+@app.route("/results")
+def restaurant_search():
+    text = request.args.get("title")
+    blacklist = request.args.get("blacklist") or " "
+    min_rating = request.args.get("min_rating")
+    return sql_search(text, blacklist, min_rating)
+
+# Available categories
 @app.route("/cuisines")
 def get_cuisines():
     """
@@ -207,16 +219,6 @@ def get_reviewer_defined_traits():
     return json.dumps(traits, default=str)
 
 
-@app.route("/")
-def home():
-    return render_template('base.html', title="sample html")
 
-
-@app.route("/results")
-def restaurant_search():
-    text = request.args.get("title")
-    blacklist = request.args.get("blacklist") or " "
-    min_rating = request.args.get("min_rating")
-    return sql_search(text, blacklist, min_rating)
 
 # app.run(debug=True)

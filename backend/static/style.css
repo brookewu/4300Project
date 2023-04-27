@@ -65,6 +65,7 @@
 #answer-box {
 	width: 700px;
 	margin-top: -250px;
+	overflow-y: scroll;
 }
 
 .episode-title {

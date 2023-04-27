@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <title>{% block title %}{% endblock %} - Flaskr</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
@@ -19,9 +20,10 @@
 					<input
 						placeholder="Search for your favorite restaurant"
 						id="filter-text-val"
-						onkeyup="filterText()"
+						onkeyup="filterText()" 
 					/>
 				</div>
+				
 			</div>
 			<div class="container">
 				<h2 class="input-heading">Additional Inputs</h2>
@@ -42,19 +44,23 @@
 	</div>
 
 	<script>
+		
+		fetch('../restaurant_names')
+			.then((response) => response.json())
+			.then((json) => console.log(json));
+		
 		// Get the slider input element and rating-value span element
 		const ratingInput = document.getElementById('rating-input');
 		const ratingValue = document.getElementById('rating-value');
 
 		const blackList = document.getElementById('blacklist-input');
 
-
 		// Add an event listener to the slider input element
 		ratingInput.addEventListener('input', () => {
 			// Set the value of the rating-value span element to the current value of the slider
 			ratingValue.innerText = ratingInput.value;
 		});
-
+		
 		function answerBoxTemplate(
 			name,
 			address,
@@ -66,6 +72,7 @@
 			if (document.getElementById('filter-text-val').value == '') {
 				return ``;
 			}
+			
 			const bgColor = match ? '#fff6f6' : '#f9f9f9';
 			return `<div class='border box-template' style='background-color: ${bgColor};'>
                 <h3 class='episode-title'>${name}</h3>
@@ -80,9 +87,12 @@
 			document.getElementById('filter-text-val').focus();
 		}
 
+
+
 		function filterText() {
 			document.getElementById('answer-box').innerHTML = '';
-			console.log(document.getElementById('filter-text-val').value);
+			
+			//console.log(document.getElementById('filter-text-val').value);
 			var searchParams = new URLSearchParams({
 				title: document.getElementById('filter-text-val').value,
 			});
@@ -95,6 +105,9 @@
 						if (index == 0) {
 							// Query company
 							console.log('User query company info: ', row);
+							if (row.address == null){
+								return;
+							}
 							let tempDiv = document.createElement('div');
 							tempDiv.innerHTML = answerBoxTemplate(
 								row.name,
@@ -107,7 +120,7 @@
 							document.getElementById('answer-box').appendChild(tempDiv);
 						} else {
 							row.forEach((r, i) => {
-								// Matched comapny
+								// Matched companies
 								console.log('Match #', i + 1, ' company info: ', r);
 								let tempDiv = document.createElement('div');
 								tempDiv.innerHTML = answerBoxTemplate(

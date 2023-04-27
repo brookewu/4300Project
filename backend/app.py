@@ -12,7 +12,7 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
 # Don't worry about the deployment credentials, those are fixed
 # You can use a different DB name if you want to
 MYSQL_USER = "root"
-MYSQL_USER_PASSWORD = ""
+MYSQL_USER_PASSWORD = "jonaccar96$"
 MYSQL_PORT = 3306
 MYSQL_DATABASE = "restaurants"
 
@@ -21,10 +21,11 @@ mysql_engine = MySQLDatabaseHandler(
 
 # Path to init.sql file. This file can be replaced with your own file for testing on localhost, but do NOT move the init.sql file
 # mysql_engine.load_file_into_db()
-db_path = os.path.join(os.environ['ROOT_PATH'],'init.sql')
+db_path = os.path.join(os.environ['ROOT_PATH'],'restaurants_old.sql')
 mysql_engine.load_file_into_db(file_path = db_path)
 
 app = Flask(__name__)
+
 CORS(app)
 
 # Sample search, the LIKE operator in this case is hard-coded,
@@ -43,6 +44,11 @@ CORS(app)
 #     keys = [x[0] for x in column_lst_data]
 #     return keys
 
+
+restaurant_names = ["hello"];
+
+with open('restaurant_names.json', 'w') as f:
+    json.dump(restaurant_names, f)
 
 def sql_search(input, blacklist, min_rating):
     """
@@ -153,4 +159,4 @@ def restaurant_search():
     min_rating = request.args.get("min_rating")
     return sql_search(text, blacklist, min_rating)
 
-# app.run(debug=True)
+app.run(debug=True)

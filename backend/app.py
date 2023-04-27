@@ -43,8 +43,11 @@ CORS(app)
 #     keys = [x[0] for x in column_lst_data]
 #     return keys
 
-
+#------------------------------ HELPERS ------------------------------
 def get_categories():
+    """
+    Returns a set of all "good" cuisine foods from Yelp's business categories.
+    """
     categories_sql = f"""SELECT categories FROM attributes"""
     categories_data = mysql_engine.query_selector(categories_sql)
 
@@ -53,38 +56,8 @@ def get_categories():
         cat_lst = x[0].strip().split("|")
         for c in cat_lst:
             category_set.add(c)
-   
-@app.route("/cusines")
-def get_cusines():
-    cusines = {'Armenian', 'Israeli', 'Greek', 'Egyptian', 'Mediterranean', 'Indonesian', 'Himalayan/Nepalese', 'Venezuelan', 'Scandinavian', 'Modern European', 'Salvadoran', 'Hawaiian', 'Taiwanese', 'Cambodian', 'American (New)', 'Polish', 'Vietnamese', 'Russian', 'Halal', 'Argentine', 'Colombian', 'Asian Fusion', 'Cajun/Creole', 'Ethiopian', 'Korean', 'Soul Food', 'Pakistani', 'Peruvian', 'Chinese', 'Italian', 'Basque', 'Spanish', 'Thai', 'Indian', 'Szechuan', 'Sicilian', 'Sardinian', 'Mongolian', 'Filipino', 'Bangladeshi', 'Middle Eastern', 'Caribbean', 'Austrian', 'Pan Asian', 'Uzbek', 'Senegalese', 'Shanghainese',  'Ukrainian', 'French', 'Persian/Iranian', 'Afghan', 'Arabic', 'Barbeque', 'Mexican', 'Turkish', 'Cuban', 'Seafood', 'Latin American', 'Honduran', 'Puerto Rican','Hungarian', 'South African', 'Irish', 'Georgian',
-              'Brazilian', 'Tex-Mex', 'German', 'Dominican', 'Iberian',  
-              'New Mexican Cuisine', 'Australian', 'British', 'Moroccan', 'Hainan', 'American (Traditional)', 
-             'Cantonese', 'African', 'Singaporean', 'Portuguese', 'Haitian', 'Malaysian', 'Laotian', 'Japanese', 
-            'Belgian', 'Southern', 'Burmese', 'Lebanese'}
-    
-    return json.dumps(cusines, default=str)
-    
-@app.route("/specialty")
-def get_specialty():
-    specialty_foods = {'Cupcakes', 'Teppanyaki', 'Hot Dogs', 'Donuts', 'Ramen', 'Fish & Chips', 'Wraps', 'Bagels', 'Falafel', 'Poke', 'Macarons', 'Shaved Ice', 'Noodles', 'Soup', 'Pretzels', 'Cheesesteaks', 'Kombucha', 'Chicken Wings', 'Japanese Curry', 'Hot Pot', 'Gelato', 'Tacos', 'Salad', 
-                     'Burgers', 'Waffles', 'Beer', 'Empanadas', 'Acai Bowls', 'Sandwiches','Kebab', 'Bubble Tea', 'Fondue', 'Coffee & Tea', 'Fruits & Veggies',
-                      'Pizza', 'Tapas/Small Plates', 'Ice Cream & Frozen Yogurt', 'Custom Cakes'}
-    return json.dumps(specialty_foods, default=str)
 
-@app.route("/dietary")
-def get_dietary():
-    dietary_restrictions = { 'Vegan', 'Gluten-Free', 'Kosher', 'Vegetarian'}
-    return json.dumps(dietary_restrictions, default=str)
-
-@app.route("/establishments")
-def get_establishment():
-    establishments = {'Gastropubs', 'Active Life', 'Pasta Shops', 'Supper Clubs', 'Colleges & Universities', 'Bakeries', 'Grocery',  'Delicatessen', 'Dive Bars','Bistros', 'Creperies', 'Speakeasies', 'Fast Food', 'Wine Bars', 'Hookah Bars', 'Themed Cafes', 'Delis', 'Tiki Bars', 'Beer Hall', 'Champagne Bars', 'Distilleries', 'Public Markets', 'Beer Bar', 'Conveyor Belt Sushi', 'Food Trucks', 'Lounges', 'Cocktail Bars', 'Meat Shops',  'Irish Pub',  'Food Banks',  'Desserts', 'Food Court', 'Tapas Bars', 
-                     'Farmers Market', 'Patisserie/Cake Shop', 'Comedy Clubs', 'Candy Stores', 'Pop-Up Restaurants', 'Chocolatiers & Shops', 'Tea Rooms', 'Bars', 'Convenience Stores', 'Food Stands', 'Gay Bars', 'Street Vendors', 'Seafood Markets', 'Brasseries',  'Piano Bars', 'Cafes', 'Brewpubs', 'Jazz & Blues', 'Poutineries', 'Cideries', 
-                     'Internet Cafes', 'Casinos', 'Breweries', 'Coffee Roasteries','Do-It-Yourself Food', 'Live/Raw Food', 'Cheese Shops','Organic Stores', 
-                     'Strip Clubs', 'Chicken Shop', 'Sushi Bars', 'Dim Sum', 'Izakaya', 'Smokehouse', 'Sports Bars',
-                     'Butcher', 'Buffets', 'Wineries', 'Juice Bars & Smoothies', 'Steakhouses',
-                     'Beer Gardens', 'Diners', 'Cafeteria',  'Karaoke', 'Pubs', 'Whiskey Bars', 'Dinner Theater'}
-    return json.dumps(establishments, default=str)
+    return category_set
 
 def sql_search(input, blacklist, min_rating):
     """
@@ -123,8 +96,6 @@ def sql_search(input, blacklist, min_rating):
         break
     blacklist_restaurant = blacklist_restaurant.replace("'", "\\'")
     blacklist_restaurant = blacklist_restaurant.replace("&", "\&")
-
-
 
     # Get matching restaurants and their attributes for the searched restaurant
     query_sql = f"""SELECT company_one, company_two, address, postal_code, stars, 
@@ -181,6 +152,59 @@ def sql_search(input, blacklist, min_rating):
         })
     serialized.append(matches)
     return json.dumps(serialized, default=str)
+   
+#------------------------------ ROUTES ------------------------------
+@app.route("/cuisines")
+def get_cuisines():
+    """
+    Returns a set of all "good" cuisine foods from Yelp's business categories.
+    """
+    cusines = {'Armenian', 'Israeli', 'Greek', 'Egyptian', 'Mediterranean', 'Indonesian', 'Himalayan/Nepalese', 'Venezuelan', 'Scandinavian', 'Modern European', 'Salvadoran', 'Hawaiian', 'Taiwanese', 'Cambodian', 'American (New)', 'Polish', 'Vietnamese', 'Russian', 'Halal', 'Argentine', 'Colombian', 'Asian Fusion', 'Cajun/Creole', 'Ethiopian', 'Korean', 'Soul Food', 'Pakistani', 'Peruvian', 'Chinese', 'Italian', 'Basque', 'Spanish', 'Thai', 'Indian', 'Szechuan', 'Sicilian', 'Sardinian', 'Mongolian', 'Filipino', 'Bangladeshi', 'Middle Eastern', 'Caribbean', 'Austrian', 'Pan Asian', 'Uzbek', 'Senegalese', 'Shanghainese',  'Ukrainian', 'French', 'Persian/Iranian', 'Afghan', 'Arabic', 'Barbeque', 'Mexican', 'Turkish', 'Cuban', 'Seafood', 'Latin American', 'Honduran', 'Puerto Rican','Hungarian', 'South African', 'Irish', 'Georgian',
+              'Brazilian', 'Tex-Mex', 'German', 'Dominican', 'Iberian',  
+              'New Mexican Cuisine', 'Australian', 'British', 'Moroccan', 'Hainan', 'American (Traditional)', 
+             'Cantonese', 'African', 'Singaporean', 'Portuguese', 'Haitian', 'Malaysian', 'Laotian', 'Japanese', 
+            'Belgian', 'Southern', 'Burmese', 'Lebanese'}
+    
+    return json.dumps(cusines, default=str)
+    
+@app.route("/specialty")
+def get_specialty_foods():
+    """
+    Returns a set of all "good" specialty foods from Yelp's business categories.
+    """
+    specialty_foods = {'Cupcakes', 'Teppanyaki', 'Hot Dogs', 'Donuts', 'Ramen', 'Fish & Chips', 'Wraps', 'Bagels', 'Falafel', 'Poke', 'Macarons', 'Shaved Ice', 'Noodles', 'Soup', 'Pretzels', 'Cheesesteaks', 'Kombucha', 'Chicken Wings', 'Japanese Curry', 'Hot Pot', 'Gelato', 'Tacos', 'Salad', 
+                     'Burgers', 'Waffles', 'Beer', 'Empanadas', 'Acai Bowls', 'Sandwiches','Kebab', 'Bubble Tea', 'Fondue', 'Coffee & Tea', 'Fruits & Veggies',
+                      'Pizza', 'Tapas/Small Plates', 'Ice Cream & Frozen Yogurt', 'Custom Cakes'}
+    return json.dumps(specialty_foods, default=str)
+
+@app.route("/dietary")
+def get_dietary_restrictions():
+    """
+    Returns a set of all dietary from Yelp's business categories.
+    """
+    dietary_restrictions = { 'Vegan', 'Gluten-Free', 'Kosher', 'Vegetarian'}
+    return json.dumps(dietary_restrictions, default=str)
+
+@app.route("/establishments")
+def get_establishments():
+    """
+    Returns a set of all "good" establishments from Yelp's business categories.
+    """
+    establishments = {'Gastropubs', 'Active Life', 'Pasta Shops', 'Supper Clubs', 'Colleges & Universities', 'Bakeries', 'Grocery',  'Delicatessen', 'Dive Bars','Bistros', 'Creperies', 'Speakeasies', 'Fast Food', 'Wine Bars', 'Hookah Bars', 'Themed Cafes', 'Delis', 'Tiki Bars', 'Beer Hall', 'Champagne Bars', 'Distilleries', 'Public Markets', 'Beer Bar', 'Conveyor Belt Sushi', 'Food Trucks', 'Lounges', 'Cocktail Bars', 'Meat Shops',  'Irish Pub',  'Food Banks',  'Desserts', 'Food Court', 'Tapas Bars', 
+                     'Farmers Market', 'Patisserie/Cake Shop', 'Comedy Clubs', 'Candy Stores', 'Pop-Up Restaurants', 'Chocolatiers & Shops', 'Tea Rooms', 'Bars', 'Convenience Stores', 'Food Stands', 'Gay Bars', 'Street Vendors', 'Seafood Markets', 'Brasseries',  'Piano Bars', 'Cafes', 'Brewpubs', 'Jazz & Blues', 'Poutineries', 'Cideries', 
+                     'Internet Cafes', 'Casinos', 'Breweries', 'Coffee Roasteries','Do-It-Yourself Food', 'Live/Raw Food', 'Cheese Shops','Organic Stores', 
+                     'Strip Clubs', 'Chicken Shop', 'Sushi Bars', 'Dim Sum', 'Izakaya', 'Smokehouse', 'Sports Bars',
+                     'Butcher', 'Buffets', 'Wineries', 'Juice Bars & Smoothies', 'Steakhouses',
+                     'Beer Gardens', 'Diners', 'Cafeteria',  'Karaoke', 'Pubs', 'Whiskey Bars', 'Dinner Theater'}
+    return json.dumps(establishments, default=str)
+
+@app.route("/traits")
+def get_reviewer_defined_traits():
+    """
+    Returns a list of all review defined traits (aka vibes) determined using SVD
+    """
+    traits = ["crunchy", "morning", "fishy", "nightlife", "hearty", "meaty", "homey", "fresh", "flavorful"]
+    return json.dumps(traits, default=str)
 
 
 @app.route("/")
@@ -188,7 +212,7 @@ def home():
     return render_template('base.html', title="sample html")
 
 
-@app.route("/episodes")
+@app.route("/results")
 def restaurant_search():
     text = request.args.get("title")
     blacklist = request.args.get("blacklist") or " "

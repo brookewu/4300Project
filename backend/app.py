@@ -21,7 +21,7 @@ mysql_engine = MySQLDatabaseHandler(
 
 # Path to init.sql file. This file can be replaced with your own file for testing on localhost, but do NOT move the init.sql file
 # mysql_engine.load_file_into_db()
-db_path = os.path.join(os.environ['ROOT_PATH'],'init.sql')
+db_path = os.path.join(os.environ['ROOT_PATH'],'restaurants_old.sql')
 mysql_engine.load_file_into_db(file_path = db_path)
 
 app = Flask(__name__)
@@ -43,6 +43,48 @@ CORS(app)
 #     keys = [x[0] for x in column_lst_data]
 #     return keys
 
+
+def get_categories():
+    categories_sql = f"""SELECT categories FROM attributes"""
+    categories_data = mysql_engine.query_selector(categories_sql)
+
+    category_set = {}
+    for x in categories_data:
+        cat_lst = x[0].strip().split("|")
+        for c in cat_lst:
+            category_set.add(c)
+   
+@app.route("/cusines")
+def get_cusines():
+    cusines = {'Armenian', 'Israeli', 'Greek', 'Egyptian', 'Mediterranean', 'Indonesian', 'Himalayan/Nepalese', 'Venezuelan', 'Scandinavian', 'Modern European', 'Salvadoran', 'Hawaiian', 'Taiwanese', 'Cambodian', 'American (New)', 'Polish', 'Vietnamese', 'Russian', 'Halal', 'Argentine', 'Colombian', 'Asian Fusion', 'Cajun/Creole', 'Ethiopian', 'Korean', 'Soul Food', 'Pakistani', 'Peruvian', 'Chinese', 'Italian', 'Basque', 'Spanish', 'Thai', 'Indian', 'Szechuan', 'Sicilian', 'Sardinian', 'Mongolian', 'Filipino', 'Bangladeshi', 'Middle Eastern', 'Caribbean', 'Austrian', 'Pan Asian', 'Uzbek', 'Senegalese', 'Shanghainese',  'Ukrainian', 'French', 'Persian/Iranian', 'Afghan', 'Arabic', 'Barbeque', 'Mexican', 'Turkish', 'Cuban', 'Seafood', 'Latin American', 'Honduran', 'Puerto Rican','Hungarian', 'South African', 'Irish', 'Georgian',
+              'Brazilian', 'Tex-Mex', 'German', 'Dominican', 'Iberian',  
+              'New Mexican Cuisine', 'Australian', 'British', 'Moroccan', 'Hainan', 'American (Traditional)', 
+             'Cantonese', 'African', 'Singaporean', 'Portuguese', 'Haitian', 'Malaysian', 'Laotian', 'Japanese', 
+            'Belgian', 'Southern', 'Burmese', 'Lebanese'}
+    
+    return json.dumps(cusines, default=str)
+    
+@app.route("/specialty")
+def get_specialty():
+    specialty_foods = {'Cupcakes', 'Teppanyaki', 'Hot Dogs', 'Donuts', 'Ramen', 'Fish & Chips', 'Wraps', 'Bagels', 'Falafel', 'Poke', 'Macarons', 'Shaved Ice', 'Noodles', 'Soup', 'Pretzels', 'Cheesesteaks', 'Kombucha', 'Chicken Wings', 'Japanese Curry', 'Hot Pot', 'Gelato', 'Tacos', 'Salad', 
+                     'Burgers', 'Waffles', 'Beer', 'Empanadas', 'Acai Bowls', 'Sandwiches','Kebab', 'Bubble Tea', 'Fondue', 'Coffee & Tea', 'Fruits & Veggies',
+                      'Pizza', 'Tapas/Small Plates', 'Ice Cream & Frozen Yogurt', 'Custom Cakes'}
+    return json.dumps(specialty_foods, default=str)
+
+@app.route("/dietary")
+def get_dietary():
+    dietary_restrictions = { 'Vegan', 'Gluten-Free', 'Kosher', 'Vegetarian'}
+    return json.dumps(dietary_restrictions, default=str)
+
+@app.route("/establishments")
+def get_establishment():
+    establishments = {'Gastropubs', 'Active Life', 'Pasta Shops', 'Supper Clubs', 'Colleges & Universities', 'Bakeries', 'Grocery',  'Delicatessen', 'Dive Bars','Bistros', 'Creperies', 'Speakeasies', 'Fast Food', 'Wine Bars', 'Hookah Bars', 'Themed Cafes', 'Delis', 'Tiki Bars', 'Beer Hall', 'Champagne Bars', 'Distilleries', 'Public Markets', 'Beer Bar', 'Conveyor Belt Sushi', 'Food Trucks', 'Lounges', 'Cocktail Bars', 'Meat Shops',  'Irish Pub',  'Food Banks',  'Desserts', 'Food Court', 'Tapas Bars', 
+                     'Farmers Market', 'Patisserie/Cake Shop', 'Comedy Clubs', 'Candy Stores', 'Pop-Up Restaurants', 'Chocolatiers & Shops', 'Tea Rooms', 'Bars', 'Convenience Stores', 'Food Stands', 'Gay Bars', 'Street Vendors', 'Seafood Markets', 'Brasseries',  'Piano Bars', 'Cafes', 'Brewpubs', 'Jazz & Blues', 'Poutineries', 'Cideries', 
+                     'Internet Cafes', 'Casinos', 'Breweries', 'Coffee Roasteries','Do-It-Yourself Food', 'Live/Raw Food', 'Cheese Shops','Organic Stores', 
+                     'Strip Clubs', 'Chicken Shop', 'Sushi Bars', 'Dim Sum', 'Izakaya', 'Smokehouse', 'Sports Bars',
+                     'Butcher', 'Buffets', 'Wineries', 'Juice Bars & Smoothies', 'Steakhouses',
+                     'Beer Gardens', 'Diners', 'Cafeteria',  'Karaoke', 'Pubs', 'Whiskey Bars', 'Dinner Theater'}
+    return json.dumps(establishments, default=str)
 
 def sql_search(input, blacklist, min_rating):
     """
@@ -70,7 +112,7 @@ def sql_search(input, blacklist, min_rating):
         searched_restaurant = x[0]
         break
     searched_restaurant = searched_restaurant.replace("'", "\\'")
-    searched_restaurant = searched_restaurant.replace("&", "\&")
+    searched_restaurant = searched_restaurant.replace("&", "&")
 
     # Match blacklist input with a restaurant
     blacklist_restaurant_sql = f"""SELECT company_one FROM scores WHERE LOWER( scores.company_one ) LIKE '{blacklist.lower()}%%' LIMIT 1"""

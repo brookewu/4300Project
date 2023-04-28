@@ -43,8 +43,11 @@ CORS(app)
 #     keys = [x[0] for x in column_lst_data]
 #     return keys
 
-
+#------------------------------ HELPERS ------------------------------
 def get_categories():
+    """
+    Returns a set of all "good" cuisine foods from Yelp's business categories.
+    """
     categories_sql = f"""SELECT categories FROM attributes"""
     categories_data = mysql_engine.query_selector(categories_sql)
 
@@ -53,80 +56,44 @@ def get_categories():
         cat_lst = x[0].strip().split("|")
         for c in cat_lst:
             category_set.add(c)
-   
-@app.route("/cusines")
-def get_cusines():
-    cusines = {'Armenian', 'Israeli', 'Greek', 'Egyptian', 'Mediterranean', 'Indonesian', 'Himalayan/Nepalese', 'Venezuelan', 'Scandinavian', 'Modern European', 'Salvadoran', 'Hawaiian', 'Taiwanese', 'Cambodian', 'American (New)', 'Polish', 'Vietnamese', 'Russian', 'Halal', 'Argentine', 'Colombian', 'Asian Fusion', 'Cajun/Creole', 'Ethiopian', 'Korean', 'Soul Food', 'Pakistani', 'Peruvian', 'Chinese', 'Italian', 'Basque', 'Spanish', 'Thai', 'Indian', 'Szechuan', 'Sicilian', 'Sardinian', 'Mongolian', 'Filipino', 'Bangladeshi', 'Middle Eastern', 'Caribbean', 'Austrian', 'Pan Asian', 'Uzbek', 'Senegalese', 'Shanghainese',  'Ukrainian', 'French', 'Persian/Iranian', 'Afghan', 'Arabic', 'Barbeque', 'Mexican', 'Turkish', 'Cuban', 'Seafood', 'Latin American', 'Honduran', 'Puerto Rican','Hungarian', 'South African', 'Irish', 'Georgian',
-              'Brazilian', 'Tex-Mex', 'German', 'Dominican', 'Iberian',  
-              'New Mexican Cuisine', 'Australian', 'British', 'Moroccan', 'Hainan', 'American (Traditional)', 
-             'Cantonese', 'African', 'Singaporean', 'Portuguese', 'Haitian', 'Malaysian', 'Laotian', 'Japanese', 
-            'Belgian', 'Southern', 'Burmese', 'Lebanese'}
-    
-    return json.dumps(cusines, default=str)
-    
-@app.route("/specialty")
-def get_specialty():
-    specialty_foods = {'Cupcakes', 'Teppanyaki', 'Hot Dogs', 'Donuts', 'Ramen', 'Fish & Chips', 'Wraps', 'Bagels', 'Falafel', 'Poke', 'Macarons', 'Shaved Ice', 'Noodles', 'Soup', 'Pretzels', 'Cheesesteaks', 'Kombucha', 'Chicken Wings', 'Japanese Curry', 'Hot Pot', 'Gelato', 'Tacos', 'Salad', 
-                     'Burgers', 'Waffles', 'Beer', 'Empanadas', 'Acai Bowls', 'Sandwiches','Kebab', 'Bubble Tea', 'Fondue', 'Coffee & Tea', 'Fruits & Veggies',
-                      'Pizza', 'Tapas/Small Plates', 'Ice Cream & Frozen Yogurt', 'Custom Cakes'}
-    return json.dumps(specialty_foods, default=str)
 
-@app.route("/dietary")
-def get_dietary():
-    dietary_restrictions = { 'Vegan', 'Gluten-Free', 'Kosher', 'Vegetarian'}
-    return json.dumps(dietary_restrictions, default=str)
+    return category_set
 
-@app.route("/establishments")
-def get_establishment():
-    establishments = {'Gastropubs', 'Active Life', 'Pasta Shops', 'Supper Clubs', 'Colleges & Universities', 'Bakeries', 'Grocery',  'Delicatessen', 'Dive Bars','Bistros', 'Creperies', 'Speakeasies', 'Fast Food', 'Wine Bars', 'Hookah Bars', 'Themed Cafes', 'Delis', 'Tiki Bars', 'Beer Hall', 'Champagne Bars', 'Distilleries', 'Public Markets', 'Beer Bar', 'Conveyor Belt Sushi', 'Food Trucks', 'Lounges', 'Cocktail Bars', 'Meat Shops',  'Irish Pub',  'Food Banks',  'Desserts', 'Food Court', 'Tapas Bars', 
-                     'Farmers Market', 'Patisserie/Cake Shop', 'Comedy Clubs', 'Candy Stores', 'Pop-Up Restaurants', 'Chocolatiers & Shops', 'Tea Rooms', 'Bars', 'Convenience Stores', 'Food Stands', 'Gay Bars', 'Street Vendors', 'Seafood Markets', 'Brasseries',  'Piano Bars', 'Cafes', 'Brewpubs', 'Jazz & Blues', 'Poutineries', 'Cideries', 
-                     'Internet Cafes', 'Casinos', 'Breweries', 'Coffee Roasteries','Do-It-Yourself Food', 'Live/Raw Food', 'Cheese Shops','Organic Stores', 
-                     'Strip Clubs', 'Chicken Shop', 'Sushi Bars', 'Dim Sum', 'Izakaya', 'Smokehouse', 'Sports Bars',
-                     'Butcher', 'Buffets', 'Wineries', 'Juice Bars & Smoothies', 'Steakhouses',
-                     'Beer Gardens', 'Diners', 'Cafeteria',  'Karaoke', 'Pubs', 'Whiskey Bars', 'Dinner Theater'}
-    return json.dumps(establishments, default=str)
-
-def sql_search(input, blacklist, min_rating):
+def get_restaurant_name(query):
     """
-    Example response for query "t"
-    [
-        {'name': 'Tuna Bar', 'address': '205 Race St', 'postal_code': 19106, 'stars': 4.0, 'categories': 'Sushi Bars|Restaurants|Japanese', 'useful_review': '"Finally got a chance to check this place out for an early dinner on a weeknight and I loved it! I was really craving sushi so when my girlfriend recommended this place I was totally into it. I definitely did not expect to have a new favorite sushi spot!', 'useful_count': 0}, 
-        [
-            {'name': ' Fairmount- Philadelphia"', 'address': None, 'postal_code': None, 'stars': None, 'categories': None, 'useful_review': None, 'useful_count': None}, 
-            {'name': 'México Lindo', 'address': '700 Moore St', 'postal_code': 19148, 'stars': 4.5, 'categories': 'Mexican|Restaurants', 'useful_review': '"What does a one $ sign', 'useful_count': 0}, 
-            {'name': 'El Limon', 'address': '4514 City Ave', 'postal_code': 19131, 'stars': 4.0, 'categories': 'Mexican|Restaurants', 'useful_review': '"Absolutely fire. Just thinking about this is making me hungry... damn this diet.', 'useful_count': 0}, 
-            {'name': 'Qdoba Mexican Grill', 'address': '1900 Chestnut St', 'postal_code': 19103, 'stars': 3.0, 'categories': 'Restaurants|Mexican', 'useful_review': '"I must have deleted and retyped what I\'m about to say 30 times before hitting post because it sounds extremely erotic in all the wrong ways. But here goes nothing.  Qdoba is stingy with the meat', 'useful_count': 0}, 
-            {'name': 'La Fonda De Teresita', 'address': '1446 S 8th St', 'postal_code': 19147, 'stars': 4.0, 'categories': 'Mexican|Restaurants', 'useful_review': '"I don\'t normally jump the fun on reviewing anything but I just had the best steak tortas from here that I have ever had. Seriously', 'useful_count': 0}, 
-            {'name': "Teresa's Mesa", 'address': '727 S 2nd St', 'postal_code': 19147, 'stars': 4.0, 'categories': 'Restaurants|Mexican', 'useful_review': '"This is a great new addition to Queen Village! I actually work very close to their other restaurant Los Camaradas. My coworkers and I frequent there often for their happy hour after work. #BestinphillyNACHOS. The first time I came in with my neighbor and noticed on the menu camaradas nachos and was pleasantly surprised to find out it was the same owners!', 'useful_count': 0}, 
-            {'name': 'El Guero  Mexican Food Truck', 'address': '1256 W Montgomery Ave', 'postal_code': 19122, 'stars': 5.0, 'categories': 'Restaurants|Mexican', 'useful_review': '"AUTHENTIC Mexican food.  I just had the shrimp tacos', 'useful_count': 0}, 
-            {'name': 'Los Jimenez', 'address': '2654 S 6th St', 'postal_code': 19148, 'stars': 4.5, 'categories': 'Restaurants|Mexican', 'useful_review': '"Great decision for a late lunch on Sunday!  My fiancee and I came in with the intent of trying the al pastor tacos that we heard about through philly.com.  ', 'useful_count': 0}, 
-            {'name': 'El Purepecha', 'address': '315 N 12th St', 'postal_code': 19107, 'stars': 4.5, 'categories': 'Mexican|Restaurants', 'useful_review': '"Solid Mexican hole in the wall type joint. Friendly staff', 'useful_count': 0}, 
-            {'name': 'Smiths Restaurant and Bar', 'address': '"39 S 19th St', 'postal_code': 0, 'stars': 99.9, 'categories': '3.0', 'useful_review': 'American (New)|Bars|Nightlife|Lounges|Restaurants', 'useful_count': 0}]
-        ]
+    Returns a string name identifier of a restaurant given some [query].
+    Note: Adds escape in front of special characters for sql string comparison 
     """
-    # Match input with a restaurant to be our searched restaurant
-    searched_restaurant_sql = f"""SELECT company_one FROM scores WHERE LOWER( scores.company_one ) LIKE '{input.lower()}%%' LIMIT 1"""
-    searched_restaurant_data = mysql_engine.query_selector(searched_restaurant_sql)
-    searched_restaurant = ""
-    for x in searched_restaurant_data:
-        searched_restaurant = x[0]
+    matched_restaurant_sql = f"""SELECT company_one FROM scores WHERE LOWER( scores.company_one ) LIKE '{query.lower()}%%' LIMIT 1"""
+    matched_restaurant_data = mysql_engine.query_selector(matched_restaurant_sql)
+    
+    # Extract out searched restaurant from sql data response
+    matched_restauarant = ""
+    for x in matched_restaurant_data:
+        matched_restauarant = x[0]
         break
-    searched_restaurant = searched_restaurant.replace("'", "\\'")
-    searched_restaurant = searched_restaurant.replace("&", "&")
 
-    # Match blacklist input with a restaurant
-    blacklist_restaurant_sql = f"""SELECT company_one FROM scores WHERE LOWER( scores.company_one ) LIKE '{blacklist.lower()}%%' LIMIT 1"""
-    blacklist_restaurant_data = mysql_engine.query_selector(blacklist_restaurant_sql)
-    blacklist_restaurant = ""
-    for x in blacklist_restaurant_data:
-        blacklist_restaurant = x[0]
-        break
-    blacklist_restaurant = blacklist_restaurant.replace("'", "\\'")
-    blacklist_restaurant = blacklist_restaurant.replace("&", "\&")
+    # Reformat serached restauarnt string to allow sql comparison with special characters
+    matched_restauarant = matched_restauarant.replace("'", "\\'")
+    matched_restauarant = matched_restauarant.replace("&", "\&")
 
+    return matched_restauarant
 
+def get_restaurant_attributes(restaurant_name):
+    """
+    Returns a dictionary containing business attributes for [restaurant_name]
+    """
+    attributes_sql = f"""SELECT name, address, postal_code, stars, 
+    categories, useful_review, useful_count FROM attributes WHERE LOWER( name ) LIKE '{restaurant_name.lower()}' limit 1"""
+    attributes_data = mysql_engine.query_selector(attributes_sql)
+    for x in attributes_data:
+        return dict(x)
 
-    # Get matching restaurants and their attributes for the searched restaurant
+def find_top_matches_and_attributes(searched_restaurant, blacklist_restaurant, min_rating, k):
+    """
+    Returns a LegacyCursorResult containing the top k restaurants that are similar
+    to [searched_restaurant] and their attributes.
+    """
     query_sql = f"""SELECT company_one, company_two, address, postal_code, stars, 
     categories, useful_review, useful_count, jaccard_score, cosine_score, svd_score,
         ((0.3 * jaccard_score) + (0.35 * cosine_score) + (0.3 * svd_score) + ( 
@@ -143,56 +110,118 @@ def sql_search(input, blacklist, min_rating):
         AND LOWER( scores.company_two ) NOT LIKE '{blacklist_restaurant.lower()}' 
         AND attributes.stars >= {min_rating}
         ORDER BY combined_score
-        DESC limit 5 """
-    
+        DESC limit {k} """
     data = mysql_engine.query_selector(query_sql)
+    return data
+
+def serialize_result_data(searched_attributes_dict, result_data):
+    """
+    Returns a reformatted result data. Formatted in a list where the first index
+    contains a dictionary of attribute information for the searched restaurant and is followed by a
+    list containing dictionaries of attribute and score information for the top k restaurants.
+
+    [ dict of attributes for searched restaurant, [dict of attributes and scores for top 1 match, ... top 2 match ... ]]
+    """
+    serialized = []
+    serialized.append(searched_attributes_dict)
+    matches = []
+    for x in result_data:
+        d = dict(x)
+        d["name"] = d["company_two"]
+        d.pop("company_one")
+        matches.append(d)
+    serialized.append(matches)
+    return serialized
+
+def sql_search(input, blacklist, min_rating, k):
+    """
+    Returns the top k similar results for [input] with conditions [blacklist] and [min_rating].
+    """
+    # Match input with a restaurant to be our searched restaurant
+    searched_restaurant = get_restaurant_name(input)
+
+    # Match blacklist input with a restaurant
+    blacklist_restaurant = get_restaurant_name(blacklist)
+
+    # Get matching restaurants and their attributes for the searched restaurant
+    result_data = find_top_matches_and_attributes(searched_restaurant, blacklist_restaurant, min_rating, k)
     
     # Get attributes for the searched restaurant
-    query_business_attr_sql = query_sql = f"""SELECT name, address, postal_code, stars, 
-    categories, useful_review, useful_count FROM attributes WHERE LOWER( name ) LIKE '{searched_restaurant.lower()}' limit 1"""
-    q_data = mysql_engine.query_selector(query_business_attr_sql)
-    
+    searched_attributes_dict = get_restaurant_attributes(searched_restaurant)
+
     # Serialize results for json response
-    serialized = []
-    for x in q_data:
-        serialized.append({
-                "name": x[0],
-                "address": x[1],
-                "postal_code": x[2],
-                "stars": x[3],
-                "categories": x[4],
-                "useful_review": x[5],
-                "useful_count": x[6],})
-    matches = []
-    for x in data:
-        matches.append({
-            "name": x[1],
-            "address": x[2],
-            "postal_code": x[3],
-            "stars": x[4],
-            "categories": x[5],
-            "useful_review": x[6],
-            "useful_count": x[7],
-            "jaccard_score": x[8],
-            "cosine_score": x[9],
-            "svd_score": x[10],
-            "combined_score": x[11],
-            "searched_company": x[0]
-        })
-    serialized.append(matches)
+    serialized = serialize_result_data(searched_attributes_dict, result_data)
+
+    print(json.dumps(serialized, default=str))
     return json.dumps(serialized, default=str)
-
-
+   
+#------------------------------ ROUTES ------------------------------
+# Main endpoints
 @app.route("/")
 def home():
     return render_template('base.html', title="sample html")
 
-
-@app.route("/episodes")
+@app.route("/results")
 def restaurant_search():
     text = request.args.get("title")
     blacklist = request.args.get("blacklist") or " "
     min_rating = request.args.get("min_rating")
-    return sql_search(text, blacklist, min_rating)
+    return sql_search(text, blacklist, min_rating, 5)
 
-# app.run(debug=True)
+# Available categories
+@app.route("/cuisines")
+def get_cuisines():
+    """
+    Returns a set of all "good" cuisine foods from Yelp's business categories.
+    """
+    cusines = {'Armenian', 'Israeli', 'Greek', 'Egyptian', 'Mediterranean', 'Indonesian', 'Himalayan/Nepalese', 'Venezuelan', 'Scandinavian', 'Modern European', 'Salvadoran', 'Hawaiian', 'Taiwanese', 'Cambodian', 'American (New)', 'Polish', 'Vietnamese', 'Russian', 'Halal', 'Argentine', 'Colombian', 'Asian Fusion', 'Cajun/Creole', 'Ethiopian', 'Korean', 'Soul Food', 'Pakistani', 'Peruvian', 'Chinese', 'Italian', 'Basque', 'Spanish', 'Thai', 'Indian', 'Szechuan', 'Sicilian', 'Sardinian', 'Mongolian', 'Filipino', 'Bangladeshi', 'Middle Eastern', 'Caribbean', 'Austrian', 'Pan Asian', 'Uzbek', 'Senegalese', 'Shanghainese',  'Ukrainian', 'French', 'Persian/Iranian', 'Afghan', 'Arabic', 'Barbeque', 'Mexican', 'Turkish', 'Cuban', 'Seafood', 'Latin American', 'Honduran', 'Puerto Rican','Hungarian', 'South African', 'Irish', 'Georgian',
+              'Brazilian', 'Tex-Mex', 'German', 'Dominican', 'Iberian',  
+              'New Mexican Cuisine', 'Australian', 'British', 'Moroccan', 'Hainan', 'American (Traditional)', 
+             'Cantonese', 'African', 'Singaporean', 'Portuguese', 'Haitian', 'Malaysian', 'Laotian', 'Japanese', 
+            'Belgian', 'Southern', 'Burmese', 'Lebanese'}
+    
+    return json.dumps(cusines, default=str)
+    
+@app.route("/specialty")
+def get_specialty_foods():
+    """
+    Returns a set of all "good" specialty foods from Yelp's business categories.
+    """
+    specialty_foods = {'Cupcakes', 'Teppanyaki', 'Hot Dogs', 'Donuts', 'Ramen', 'Fish & Chips', 'Wraps', 'Bagels', 'Falafel', 'Poke', 'Macarons', 'Shaved Ice', 'Noodles', 'Soup', 'Pretzels', 'Cheesesteaks', 'Kombucha', 'Chicken Wings', 'Japanese Curry', 'Hot Pot', 'Gelato', 'Tacos', 'Salad', 
+                     'Burgers', 'Waffles', 'Beer', 'Empanadas', 'Acai Bowls', 'Sandwiches','Kebab', 'Bubble Tea', 'Fondue', 'Coffee & Tea', 'Fruits & Veggies',
+                      'Pizza', 'Tapas/Small Plates', 'Ice Cream & Frozen Yogurt', 'Custom Cakes'}
+    return json.dumps(specialty_foods, default=str)
+
+@app.route("/dietary")
+def get_dietary_restrictions():
+    """
+    Returns a set of all dietary from Yelp's business categories.
+    """
+    dietary_restrictions = { 'Vegan', 'Gluten-Free', 'Kosher', 'Vegetarian'}
+    return json.dumps(dietary_restrictions, default=str)
+
+@app.route("/establishments")
+def get_establishments():
+    """
+    Returns a set of all "good" establishments from Yelp's business categories.
+    """
+    establishments = {'Gastropubs', 'Active Life', 'Pasta Shops', 'Supper Clubs', 'Colleges & Universities', 'Bakeries', 'Grocery',  'Delicatessen', 'Dive Bars','Bistros', 'Creperies', 'Speakeasies', 'Fast Food', 'Wine Bars', 'Hookah Bars', 'Themed Cafes', 'Delis', 'Tiki Bars', 'Beer Hall', 'Champagne Bars', 'Distilleries', 'Public Markets', 'Beer Bar', 'Conveyor Belt Sushi', 'Food Trucks', 'Lounges', 'Cocktail Bars', 'Meat Shops',  'Irish Pub',  'Food Banks',  'Desserts', 'Food Court', 'Tapas Bars', 
+                     'Farmers Market', 'Patisserie/Cake Shop', 'Comedy Clubs', 'Candy Stores', 'Pop-Up Restaurants', 'Chocolatiers & Shops', 'Tea Rooms', 'Bars', 'Convenience Stores', 'Food Stands', 'Gay Bars', 'Street Vendors', 'Seafood Markets', 'Brasseries',  'Piano Bars', 'Cafes', 'Brewpubs', 'Jazz & Blues', 'Poutineries', 'Cideries', 
+                     'Internet Cafes', 'Casinos', 'Breweries', 'Coffee Roasteries','Do-It-Yourself Food', 'Live/Raw Food', 'Cheese Shops','Organic Stores', 
+                     'Strip Clubs', 'Chicken Shop', 'Sushi Bars', 'Dim Sum', 'Izakaya', 'Smokehouse', 'Sports Bars',
+                     'Butcher', 'Buffets', 'Wineries', 'Juice Bars & Smoothies', 'Steakhouses',
+                     'Beer Gardens', 'Diners', 'Cafeteria',  'Karaoke', 'Pubs', 'Whiskey Bars', 'Dinner Theater'}
+    return json.dumps(establishments, default=str)
+
+@app.route("/traits")
+def get_reviewer_defined_traits():
+    """
+    Returns a list of all review defined traits (aka vibes) determined using SVD
+    """
+    traits = ["crunchy", "morning", "fishy", "nightlife", "hearty", "meaty", "homey", "fresh", "flavorful"]
+    return json.dumps(traits, default=str)
+
+# Main endpoints
+
+
+app.run(debug=True)

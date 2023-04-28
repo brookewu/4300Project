@@ -3,10 +3,8 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link
-	href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
-	rel="stylesheet"
-/>
+<link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
+	rel="stylesheet" />
 
 <body>
 	<div class="full-body-container">
@@ -15,30 +13,26 @@
 				<h1 id="title-color">CuisineCheck</h1>
 				<p id="small-title">Philadelphia</p>
 			</div>
-				<div class="search-box" onclick="sendFocus()">
-					<input
-						placeholder="Search for your favorite restaurant"
-						id="filter-text-val"
-						onkeyup="filterText()"
-					/>
-				</div>
+			<div class="search-box" onclick="sendFocus()">
+				<input placeholder="Search for your favorite restaurant" id="filter-text-val" onkeyup="filterText()" />
 			</div>
-			<div class="container">
-				<h2 class="input-heading">Additional Inputs</h2>
-				<div class="input-container">
-				  <div class="rating-box">
+		</div>
+		<div class="container">
+			<h2 class="input-heading">Additional Inputs</h2>
+			<div class="input-container">
+				<div class="rating-box">
 					<label for="rating-input">Minimum Rating:</label>
 					<input type="range" id="rating-input" name="rating-input" min="0" max="5" step="1" value="0" />
 					<span id="rating-value">0</span>
-				  </div>
-				  <div class="blacklist-box">
+				</div>
+				<div class="blacklist-box">
 					<label for="blacklist-input">Blacklist a Restaurant:</label>
 					<input type="text" id="blacklist-input" name="blacklist-input" />
-				  </div>
 				</div>
-			  </div>
-			<div id="answer-box"></div>
+			</div>
 		</div>
+		<div id="answer-box"></div>
+	</div>
 	</div>
 
 	<script>
@@ -88,7 +82,7 @@
 			});
 			searchParams.append("blacklist", blackList.value) // # Temp example for search "Marathon Grill"
 			searchParams.append("min_rating", ratingInput.value) // temp value for min_rating
-			fetch('/episodes?' + searchParams.toString())
+			fetch('/results?' + searchParams.toString())
 				.then((response) => response.json())
 				.then((data) =>
 					data.forEach((row, index) => {

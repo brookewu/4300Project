@@ -37,13 +37,13 @@ CORS(app)
 #     data = mysql_engine.query_selector(query_sql)
 #     return [dict(zip(keys, i)) for i in data]
 
-# def get_business_attribute_cols():
-#     column_lst_sql = f"""desc attributes"""
-#     column_lst_data = mysql_engine.query_selector(column_lst_sql)
-#     keys = [x[0] for x in column_lst_data]
-#     return keys
-
 #------------------------------ HELPERS ------------------------------
+def get_business_attribute_cols():
+    column_lst_sql = f"""desc attributes"""
+    column_lst_data = mysql_engine.query_selector(column_lst_sql)
+    keys = [x[0] for x in column_lst_data]
+    return keys
+
 def get_categories():
     """
     Returns a set of all "good" cuisine foods from Yelp's business categories.
@@ -51,7 +51,7 @@ def get_categories():
     categories_sql = f"""SELECT categories FROM attributes"""
     categories_data = mysql_engine.query_selector(categories_sql)
 
-    category_set = {}
+    category_set = set()
     for x in categories_data:
         cat_lst = x[0].strip().split("|")
         for c in cat_lst:
@@ -84,7 +84,7 @@ def get_restaurant_attributes(restaurant_name):
     Returns a dictionary containing business attributes for [restaurant_name]
     """
     attributes_sql = f"""SELECT name, address, postal_code, stars, 
-    categories, useful_review, useful_count FROM attributes WHERE LOWER( name ) LIKE '{restaurant_name.lower()}' limit 1"""
+    categories FROM attributes WHERE LOWER( name ) LIKE '{restaurant_name.lower()}' limit 1"""
     attributes_data = mysql_engine.query_selector(attributes_sql)
     for x in attributes_data:
         return dict(x)
@@ -102,8 +102,10 @@ def find_top_matches_and_attributes(searched_restaurant, blacklist_restaurant, m
                     DESC LIMIT 5
                 ) temp_table
                 ), 0.98 , 1)"""
-    query_sql = f"""SELECT company_one, company_two, address, postal_code, stars, 
-    categories, useful_review, useful_count, jaccard_score, cosine_score, svd_score, 
+    query_sql = f"""SELECT company_two, address, postal_code, stars, 
+    categories, top_10_words,
+    crunchy, morning, fishy, nightlife, hearty, meaty, homey, fresh, flavorful,
+    jaccard_score, cosine_score, svd_score, 
     ((0.3 * jaccard_score) + (0.35 * cosine_score) + (0.3 * svd_score) + 
     {blacklist_score_subquery}) as combined_score 
     FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) 
@@ -112,8 +114,28 @@ def find_top_matches_and_attributes(searched_restaurant, blacklist_restaurant, m
     AND attributes.stars >= {min_rating}
     ORDER BY combined_score
     DESC limit {k} """
+    
+    # query_sql = f"""SELECT top_10_words,
+    # crunchy, morning, fishy, nightlife, hearty, meaty, homey, fresh, flavorful, 
+    # ((0.3 * jaccard_score) + (0.35 * cosine_score) + (0.3 * svd_score) + 
+    # {blacklist_score_subquery}) as combined_score 
+    # FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) 
+    # WHERE LOWER( scores.company_one ) LIKE '{searched_restaurant.lower()}' 
+    # AND LOWER( scores.company_two ) NOT LIKE '{blacklist_restaurant.lower()}' 
+    # AND attributes.stars >= {min_rating}
+    # ORDER BY combined_score
+    # DESC limit {k} """
     data = mysql_engine.query_selector(query_sql)
     return data
+
+def is_cuisine(category_name):
+    return category_name in get_cuisines()
+
+def is_speciality(category_name):
+    return category_name in get_specialty_foods()
+
+def is_establishment(category_name):
+    return category_name in get_establishments()
 
 def serialize_result_data(searched_attributes_dict, result_data):
     """
@@ -129,7 +151,44 @@ def serialize_result_data(searched_attributes_dict, result_data):
     for x in result_data:
         d = dict(x)
         d["name"] = d["company_two"]
-        d.pop("company_one")
+        categories = d["categories"].split("|")
+        cuisines = []
+        specialities = []
+        establishments = []
+        for c in categories:
+            if is_cuisine(c):
+                cuisines.append(c)
+            elif is_speciality(c):
+                specialities.append(c)
+            elif is_establishment(c):
+                establishments.append(c)
+        d["cuisines"] = cuisines
+        d["specialities"] = specialities
+        d["establishments"] = establishments
+
+        top_10_words = d["top_10_words"]
+        top_words= [x.strip() for x in top_10_words.split(';')]
+        d["top_words"] = top_words
+
+        traits = [
+            ("crunchy", d["crunchy"]), ("morning", d["morning"]), ("fishy", d["fishy"]),
+            ("nightlife", d["nightlife"]), ("hearty", d["hearty"]), ("meaty", d["meaty"]),
+            ("homey", d["homey"]), ("fresh", d["fresh"]), ("flavorful", d["flavorful"]),
+            ]
+        d["traits"] = sorted(traits, key=lambda x: x[1], reverse=True)
+        
+        d.pop("company_two")
+        d.pop("categories")
+        d.pop("top_10_words")
+        d.pop("crunchy")
+        d.pop("morning")
+        d.pop("fishy")
+        d.pop("nightlife")
+        d.pop("hearty")
+        d.pop("meaty")
+        d.pop("homey")
+        d.pop("fresh")
+        d.pop("flavorful")
         matches.append(d)
     serialized.append(matches)
     return serialized
@@ -222,7 +281,5 @@ def get_reviewer_defined_traits():
     traits = ["crunchy", "morning", "fishy", "nightlife", "hearty", "meaty", "homey", "fresh", "flavorful"]
     return json.dumps(traits, default=str)
 
-# Main endpoints
-
-
+# Run application
 app.run(debug=True)

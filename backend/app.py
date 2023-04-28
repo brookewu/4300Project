@@ -59,45 +59,41 @@ def get_categories():
 
     return category_set
 
-def sql_search(input, blacklist, min_rating):
+def get_restaurant_name(query):
     """
-    Example response for query "t"
-    [
-        {'name': 'Tuna Bar', 'address': '205 Race St', 'postal_code': 19106, 'stars': 4.0, 'categories': 'Sushi Bars|Restaurants|Japanese', 'useful_review': '"Finally got a chance to check this place out for an early dinner on a weeknight and I loved it! I was really craving sushi so when my girlfriend recommended this place I was totally into it. I definitely did not expect to have a new favorite sushi spot!', 'useful_count': 0}, 
-        [
-            {'name': ' Fairmount- Philadelphia"', 'address': None, 'postal_code': None, 'stars': None, 'categories': None, 'useful_review': None, 'useful_count': None}, 
-            {'name': 'México Lindo', 'address': '700 Moore St', 'postal_code': 19148, 'stars': 4.5, 'categories': 'Mexican|Restaurants', 'useful_review': '"What does a one $ sign', 'useful_count': 0}, 
-            {'name': 'El Limon', 'address': '4514 City Ave', 'postal_code': 19131, 'stars': 4.0, 'categories': 'Mexican|Restaurants', 'useful_review': '"Absolutely fire. Just thinking about this is making me hungry... damn this diet.', 'useful_count': 0}, 
-            {'name': 'Qdoba Mexican Grill', 'address': '1900 Chestnut St', 'postal_code': 19103, 'stars': 3.0, 'categories': 'Restaurants|Mexican', 'useful_review': '"I must have deleted and retyped what I\'m about to say 30 times before hitting post because it sounds extremely erotic in all the wrong ways. But here goes nothing.  Qdoba is stingy with the meat', 'useful_count': 0}, 
-            {'name': 'La Fonda De Teresita', 'address': '1446 S 8th St', 'postal_code': 19147, 'stars': 4.0, 'categories': 'Mexican|Restaurants', 'useful_review': '"I don\'t normally jump the fun on reviewing anything but I just had the best steak tortas from here that I have ever had. Seriously', 'useful_count': 0}, 
-            {'name': "Teresa's Mesa", 'address': '727 S 2nd St', 'postal_code': 19147, 'stars': 4.0, 'categories': 'Restaurants|Mexican', 'useful_review': '"This is a great new addition to Queen Village! I actually work very close to their other restaurant Los Camaradas. My coworkers and I frequent there often for their happy hour after work. #BestinphillyNACHOS. The first time I came in with my neighbor and noticed on the menu camaradas nachos and was pleasantly surprised to find out it was the same owners!', 'useful_count': 0}, 
-            {'name': 'El Guero  Mexican Food Truck', 'address': '1256 W Montgomery Ave', 'postal_code': 19122, 'stars': 5.0, 'categories': 'Restaurants|Mexican', 'useful_review': '"AUTHENTIC Mexican food.  I just had the shrimp tacos', 'useful_count': 0}, 
-            {'name': 'Los Jimenez', 'address': '2654 S 6th St', 'postal_code': 19148, 'stars': 4.5, 'categories': 'Restaurants|Mexican', 'useful_review': '"Great decision for a late lunch on Sunday!  My fiancee and I came in with the intent of trying the al pastor tacos that we heard about through philly.com.  ', 'useful_count': 0}, 
-            {'name': 'El Purepecha', 'address': '315 N 12th St', 'postal_code': 19107, 'stars': 4.5, 'categories': 'Mexican|Restaurants', 'useful_review': '"Solid Mexican hole in the wall type joint. Friendly staff', 'useful_count': 0}, 
-            {'name': 'Smiths Restaurant and Bar', 'address': '"39 S 19th St', 'postal_code': 0, 'stars': 99.9, 'categories': '3.0', 'useful_review': 'American (New)|Bars|Nightlife|Lounges|Restaurants', 'useful_count': 0}]
-        ]
+    Returns a string name identifier of a restaurant given some [query].
+    Note: Adds escape in front of special characters for sql string comparison 
     """
-    # Match input with a restaurant to be our searched restaurant
-    searched_restaurant_sql = f"""SELECT company_one FROM scores WHERE LOWER( scores.company_one ) LIKE '{input.lower()}%%' LIMIT 1"""
-    searched_restaurant_data = mysql_engine.query_selector(searched_restaurant_sql)
-    searched_restaurant = ""
-    for x in searched_restaurant_data:
-        searched_restaurant = x[0]
+    matched_restaurant_sql = f"""SELECT company_one FROM scores WHERE LOWER( scores.company_one ) LIKE '{query.lower()}%%' LIMIT 1"""
+    matched_restaurant_data = mysql_engine.query_selector(matched_restaurant_sql)
+    
+    # Extract out searched restaurant from sql data response
+    matched_restauarant = ""
+    for x in matched_restaurant_data:
+        matched_restauarant = x[0]
         break
-    searched_restaurant = searched_restaurant.replace("'", "\\'")
-    searched_restaurant = searched_restaurant.replace("&", "&")
 
-    # Match blacklist input with a restaurant
-    blacklist_restaurant_sql = f"""SELECT company_one FROM scores WHERE LOWER( scores.company_one ) LIKE '{blacklist.lower()}%%' LIMIT 1"""
-    blacklist_restaurant_data = mysql_engine.query_selector(blacklist_restaurant_sql)
-    blacklist_restaurant = ""
-    for x in blacklist_restaurant_data:
-        blacklist_restaurant = x[0]
-        break
-    blacklist_restaurant = blacklist_restaurant.replace("'", "\\'")
-    blacklist_restaurant = blacklist_restaurant.replace("&", "\&")
+    # Reformat serached restauarnt string to allow sql comparison with special characters
+    matched_restauarant = matched_restauarant.replace("'", "\\'")
+    matched_restauarant = matched_restauarant.replace("&", "\&")
 
-    # Get matching restaurants and their attributes for the searched restaurant
+    return matched_restauarant
+
+def get_restaurant_attributes(restaurant_name):
+    """
+    Returns a dictionary containing business attributes for [restaurant_name]
+    """
+    attributes_sql = f"""SELECT name, address, postal_code, stars, 
+    categories, useful_review, useful_count FROM attributes WHERE LOWER( name ) LIKE '{restaurant_name.lower()}' limit 1"""
+    attributes_data = mysql_engine.query_selector(attributes_sql)
+    for x in attributes_data:
+        return dict(x)
+
+def find_top_matches_and_attributes(searched_restaurant, blacklist_restaurant, min_rating, k):
+    """
+    Returns a LegacyCursorResult containing the top k restaurants that are similar
+    to [searched_restaurant] and their attributes.
+    """
     query_sql = f"""SELECT company_one, company_two, address, postal_code, stars, 
     categories, useful_review, useful_count, jaccard_score, cosine_score, svd_score,
         ((0.3 * jaccard_score) + (0.35 * cosine_score) + (0.3 * svd_score) + ( 
@@ -114,46 +110,53 @@ def sql_search(input, blacklist, min_rating):
         AND LOWER( scores.company_two ) NOT LIKE '{blacklist_restaurant.lower()}' 
         AND attributes.stars >= {min_rating}
         ORDER BY combined_score
-        DESC limit 5 """
-    
+        DESC limit {k} """
     data = mysql_engine.query_selector(query_sql)
+    return data
+
+def serialize_result_data(searched_attributes_dict, result_data):
+    """
+    Returns a reformatted result data. Formatted in a list where the first index
+    contains a dictionary of attribute information for the searched restaurant and is followed by a
+    list containing dictionaries of attribute and score information for the top k restaurants.
+
+    [ dict of attributes for searched restaurant, [dict of attributes and scores for top 1 match, ... top 2 match ... ]]
+    """
+    serialized = []
+    serialized.append(searched_attributes_dict)
+    matches = []
+    for x in result_data:
+        d = dict(x)
+        d["name"] = d["company_two"]
+        d.pop("company_one")
+        matches.append(d)
+    serialized.append(matches)
+    return serialized
+
+def sql_search(input, blacklist, min_rating, k):
+    """
+    Returns the top k similar results for [input] with conditions [blacklist] and [min_rating].
+    """
+    # Match input with a restaurant to be our searched restaurant
+    searched_restaurant = get_restaurant_name(input)
+
+    # Match blacklist input with a restaurant
+    blacklist_restaurant = get_restaurant_name(blacklist)
+
+    # Get matching restaurants and their attributes for the searched restaurant
+    result_data = find_top_matches_and_attributes(searched_restaurant, blacklist_restaurant, min_rating, k)
     
     # Get attributes for the searched restaurant
-    query_business_attr_sql = query_sql = f"""SELECT name, address, postal_code, stars, 
-    categories, useful_review, useful_count FROM attributes WHERE LOWER( name ) LIKE '{searched_restaurant.lower()}' limit 1"""
-    q_data = mysql_engine.query_selector(query_business_attr_sql)
-    
+    searched_attributes_dict = get_restaurant_attributes(searched_restaurant)
+
     # Serialize results for json response
-    serialized = []
-    for x in q_data:
-        serialized.append({
-                "name": x[0],
-                "address": x[1],
-                "postal_code": x[2],
-                "stars": x[3],
-                "categories": x[4],
-                "useful_review": x[5],
-                "useful_count": x[6],})
-    matches = []
-    for x in data:
-        matches.append({
-            "name": x[1],
-            "address": x[2],
-            "postal_code": x[3],
-            "stars": x[4],
-            "categories": x[5],
-            "useful_review": x[6],
-            "useful_count": x[7],
-            "jaccard_score": x[8],
-            "cosine_score": x[9],
-            "svd_score": x[10],
-            "combined_score": x[11],
-            "searched_company": x[0]
-        })
-    serialized.append(matches)
+    serialized = serialize_result_data(searched_attributes_dict, result_data)
+
+    print(json.dumps(serialized, default=str))
     return json.dumps(serialized, default=str)
    
 #------------------------------ ROUTES ------------------------------
+# Main endpoints
 @app.route("/")
 def home():
     return render_template('base.html', title="sample html")
@@ -163,7 +166,7 @@ def restaurant_search():
     text = request.args.get("title")
     blacklist = request.args.get("blacklist") or " "
     min_rating = request.args.get("min_rating")
-    return sql_search(text, blacklist, min_rating)
+    return sql_search(text, blacklist, min_rating, 5)
 
 # Available categories
 @app.route("/cuisines")
@@ -218,7 +221,7 @@ def get_reviewer_defined_traits():
     traits = ["crunchy", "morning", "fishy", "nightlife", "hearty", "meaty", "homey", "fresh", "flavorful"]
     return json.dumps(traits, default=str)
 
+# Main endpoints
 
 
-
-# app.run(debug=True)
+app.run(debug=True)

@@ -78,9 +78,9 @@
 			document.getElementById('answer-box').innerHTML = '';
 			console.log(document.getElementById('filter-text-val').value);
 			var searchParams = new URLSearchParams({
-				title: document.getElementById('filter-text-val').value,
+				preferred: document.getElementById('filter-text-val').value,
 			});
-			searchParams.append("blacklist", blackList.value) // # Temp example for search "Marathon Grill"
+			searchParams.append("disliked", blackList.value) // # Temp example for search "Marathon Grill"
 			searchParams.append("min_rating", ratingInput.value) // temp value for min_rating
 			fetch('/results?' + searchParams.toString())
 				.then((response) => response.json())

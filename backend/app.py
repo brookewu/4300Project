@@ -94,23 +94,24 @@ def find_top_matches_and_attributes(searched_restaurant, blacklist_restaurant, m
     Returns a LegacyCursorResult containing the top k restaurants that are similar
     to [searched_restaurant] and their attributes.
     """
-    query_sql = f"""SELECT company_one, company_two, address, postal_code, stars, 
-    categories, useful_review, useful_count, jaccard_score, cosine_score, svd_score,
-        ((0.3 * jaccard_score) + (0.35 * cosine_score) + (0.3 * svd_score) + ( 
-            IF( scores.company_two IN (
+    blacklist_score_subquery = f"""IF( scores.company_two IN (
                 SELECT * FROM (
                     SELECT company_two FROM scores
                     WHERE LOWER( scores.company_one ) LIKE '{blacklist_restaurant.lower()}' 
                     ORDER BY (scores.jaccard_score * scores.cosine_score)
                     DESC LIMIT 5
                 ) temp_table
-                ), 0.5 , 1))) as combined_score 
-        FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) 
-        WHERE LOWER( scores.company_one ) LIKE '{searched_restaurant.lower()}' 
-        AND LOWER( scores.company_two ) NOT LIKE '{blacklist_restaurant.lower()}' 
-        AND attributes.stars >= {min_rating}
-        ORDER BY combined_score
-        DESC limit {k} """
+                ), 0.98 , 1)"""
+    query_sql = f"""SELECT company_one, company_two, address, postal_code, stars, 
+    categories, useful_review, useful_count, jaccard_score, cosine_score, svd_score, 
+    ((0.3 * jaccard_score) + (0.35 * cosine_score) + (0.3 * svd_score) + 
+    {blacklist_score_subquery}) as combined_score 
+    FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) 
+    WHERE LOWER( scores.company_one ) LIKE '{searched_restaurant.lower()}' 
+    AND LOWER( scores.company_two ) NOT LIKE '{blacklist_restaurant.lower()}' 
+    AND attributes.stars >= {min_rating}
+    ORDER BY combined_score
+    DESC limit {k} """
     data = mysql_engine.query_selector(query_sql)
     return data
 

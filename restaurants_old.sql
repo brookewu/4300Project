@@ -12,9 +12,17 @@ CREATE TABLE attributes(
   ,address       VARCHAR(75)
   ,postal_code   INTEGER 
   ,stars         FLOAT(3,1) NOT NULL
+  ,crunchy       FLOAT(5,4) NOT NULL
+  ,morning       FLOAT(5,4) NOT NULL
+  ,fishy         FLOAT(5,4) NOT NULL
+  ,nightlife     FLOAT(5,4) NOT NULL
+  ,hearty        FLOAT(5,4) NOT NULL
+  ,meaty         FLOAT(5,4) NOT NULL
+  ,homey         FLOAT(5,4) NOT NULL
+  ,fresh         FLOAT(5,4) NOT NULL
+  ,flavorful     FLOAT(5,4) NOT NULL
   ,categories    VARCHAR(503) NOT NULL
-  ,useful_review LONGTEXT NOT NULL -- TODO: Fix char overflow ruining last col TEXT, SMALL TEXT, BIG TEXT 65000, normalization 
-  ,useful_count  INTEGER  NOT NULL 
+  ,top_10_words  VARCHAR(503) NOT NULL
 );
  -- Note: automatically null/0 when userful_review overflows char limit https://stackoverflow.com/questions/23712943/what-happens-when-you-store-a-value-in-a-varchar-which-is-over-the-limit-in-sql
 
@@ -34,6 +42,6 @@ CREATE TABLE scores(
   ,svd_score    FLOAT(5,4) NOT NULL
 );
 
-LOAD DATA LOCAL INFILE '../business_attributes.csv'  INTO TABLE attributes  FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
+LOAD DATA LOCAL INFILE '../business_attributes_final.csv'  INTO TABLE attributes  FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
 
 LOAD DATA LOCAL INFILE '../scores_cjs.csv'  INTO TABLE scores FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';

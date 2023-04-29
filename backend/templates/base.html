@@ -4,10 +4,8 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link
-	href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
-	rel="stylesheet"
-/>
+<link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
+	rel="stylesheet" />
 
 <body>
 	<style>
@@ -28,34 +26,56 @@
 						autocomplete="off"
 						placeholder="Search for your favorite restaurant"
 						id="filter-text-val"
-						onkeyup="if (event.keyCode === 13) { filterText(); } else {filterText(), editDistance()}" 
+						onkeyup="handleKeyUp(event)"
 					/>
 					<ul id="restaurant-list"></ul>
 				</div>
-					
-			</div>
-			<div class="container">
-				<h2 class="input-heading">Additional Inputs</h2>
-				<div class="input-container">
-				  <div class="rating-box">
+		</div>
+		<div class="container">
+			<h2 class="input-heading">Additional Inputs</h2>
+			<div class="input-container">
+				<div class="rating-box">
 					<label for="rating-input">Minimum Rating:</label>
 					<input type="range" id="rating-input" name="rating-input" min="0" max="5" step="1" value="0" />
 					<span id="rating-value">0</span>
-				  </div>
-				  <div class="blacklist-box">
+				</div>
+				<div class="blacklist-box">
 					<label for="blacklist-input">Blacklist a Restaurant:</label>
 					<input type="text" id="blacklist-input" name="blacklist-input" />
-				  </div>
 				</div>
-			  </div>
-			<div id="answer-box"></div>
+			</div>
 		</div>
+		<div id="answer-box"></div>
+	</div>
 	</div>
 
 	<script>
 		const filterTextVal = document.querySelector('#filter-text-val');
 		const restaurantList = document.querySelector('#restaurant-list');
 		const searchBox = document.querySelector('.search-box');
+
+		let isFiltering = false;
+
+		function handleKeyUp(event) {
+			if (event.keyCode === 13) {
+				if (!isFiltering) {
+				isFiltering = true;
+				setTimeout(() => {
+					filterText();
+					isFiltering = false;
+				}, 1000);
+				}
+			} else {
+				filterText();
+				editDistance();
+			}
+		}
+
+		document.addEventListener('keydown', (event) => {
+			if (event.keyCode === 13) {
+				restaurantList.innerHTML = '';
+			}
+		});
 
 		document.addEventListener('click', (event) => {
 			if (!searchBox.contains(event.target)) {
@@ -68,7 +88,6 @@
 			restaurantList.innerHTML = '';
 			filterText();
 		});
-
 
 		function editDistance(){
 			fetch('get_names')
@@ -115,14 +134,12 @@
 				dp[i][j] = 0;
 				}
 			}
-
 			for (let i = 1; i <= m; i++) {
 				dp[i][0] = i;
 			}
 			for (let j = 1; j <= n; j++) {
 				dp[0][j] = j;
 			}
-
 			for (let i = 1; i <= m; i++) {
 				for (let j = 1; j <= n; j++) {
 				if (str1[i-1] === str2[j-1]) {
@@ -132,7 +149,6 @@
 				}
 				}
 			}
-
 			return dp[m][n];
 		}
 
@@ -179,11 +195,11 @@
 			
 			//console.log(document.getElementById('filter-text-val').value);
 			var searchParams = new URLSearchParams({
-				title: document.getElementById('filter-text-val').value,
+				preferred: document.getElementById('filter-text-val').value,
 			});
-			searchParams.append("blacklist", blackList.value) // # Temp example for search "Marathon Grill"
+			searchParams.append("disliked", blackList.value) // # Temp example for search "Marathon Grill"
 			searchParams.append("min_rating", ratingInput.value) // temp value for min_rating
-			fetch('/episodes?' + searchParams.toString())
+			fetch('/results?' + searchParams.toString())
 				.then((response) => response.json())
 				.then((data) =>
 					data.forEach((row, index) => {

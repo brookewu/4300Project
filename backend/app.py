@@ -148,12 +148,6 @@ def find_top_matches_and_attributes(preferred, disliked, min_rating, pos_cuisine
     disliked_specialty = get_input_score(neg_specialty, False)
     disliked_establishment = get_input_score(neg_establishment, False)
 
-    print("liked cuisine??", pos_cuisine)
-    print("liked spec??", pos_specialty)
-    print("liked estab??", pos_establishment)
-    print("disliked cuisine??", neg_cuisine)
-    print("disliked spec??", neg_specialty)
-    print("disliked estab??", neg_establishment)
     # TODO: Incorporate inputs pos_cuisine, pos_specialty, pos_establishment, 
     # neg_cuisine, neg_specialty, neg_establishment to weights
     # done ???
@@ -445,12 +439,10 @@ def restaurant_search():
     preferred = request.args.get("preferred")
     disliked = request.args.get("disliked") or " "
     min_rating = request.args.get("min_rating")
-    # pos_cuisine = request.args.get("pos_cuisine") or " "
-    pos_cuisine = "American (New)"
+    pos_cuisine = request.args.get("pos_cuisine") or " "
     pos_specialty = request.args.get("pos_specialty") or " "
     pos_establishment = request.args.get("pos_establishment") or " "
-    # neg_cuisine = request.args.get("neg_cuisine") or " "
-    neg_cuisine = "Italian"
+    neg_cuisine = request.args.get("neg_cuisine") or " "
     neg_specialty = request.args.get("neg_specialty") or " "
     neg_establishment = request.args.get("neg_establishment") or " "
 

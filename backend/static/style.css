@@ -297,7 +297,7 @@ input[type='text'] {
 	border-top: none;
 	max-height: 200px;
 	overflow-y: auto;
-	top: 57.5%;
+	top: 60.5%;
 	left: 5%;
 }
 
@@ -325,7 +325,7 @@ input[type='text'] {
 	border-top: none;
 	max-height: 200px;
 	overflow-y: auto;
-	top: 70.5%;
+	top: 72.5%;
 	left: 5%;
 }
 
@@ -352,7 +352,7 @@ input[type='text'] {
 	border-top: none;
 	max-height: 200px;
 	overflow-y: auto;
-	top: 83.5%;
+	top: 84.5%;
 	left: 5%;
 }
 
@@ -407,7 +407,7 @@ input[type='text'] {
 	border-top: none;
 	max-height: 130px;
 
-	top: 45%;
+	top: 41.5%;
 	left: 5%;
 	overflow-y: auto;
 }

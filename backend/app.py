@@ -14,7 +14,7 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
 # Don't worry about the deployment credentials, those are fixed
 # You can use a different DB name if you want to
 MYSQL_USER = "root"
-MYSQL_USER_PASSWORD = "jonaccar96$"
+MYSQL_USER_PASSWORD = ""
 MYSQL_PORT = 3306
 MYSQL_DATABASE = "restaurants"
 
@@ -23,7 +23,7 @@ mysql_engine = MySQLDatabaseHandler(
 
 # Path to init.sql file. This file can be replaced with your own file for testing on localhost, but do NOT move the init.sql file
 # mysql_engine.load_file_into_db()
-db_path = os.path.join(os.environ['ROOT_PATH'],'init.sql')
+db_path = os.path.join(os.environ['ROOT_PATH'],'restaurants_old.sql')
 mysql_engine.load_file_into_db(file_path = db_path)
 
 app = Flask(__name__)

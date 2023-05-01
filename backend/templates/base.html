@@ -20,14 +20,14 @@
 				<h1 id="title-color">CuisineCheck</h1>
 				<p id="small-title">Philadelphia</p>
 			</div>
-			<div class="search-box" 
-				onclick="sendFocus('filter-text-val')" 
-				onkeyup="editDistance('get_names', 'filter-text-val','restaurant-list')">
-				<input autocomplete="off" placeholder="Search for your favorite restaurant" id="filter-text-val"
-					onkeyup="handleKeyUp(event)" />
-				<div class="restaurant-list-container">
-					<ul id="restaurant-list"></ul>
-				</div>
+		</div>
+		<div class="search-box" 
+			onclick="sendFocus('filter-text-val')" 
+			onkeyup="editDistance('get_names', 'filter-text-val','restaurant-list')">
+			<input autocomplete="off" placeholder="Search for your favorite restaurant" id="filter-text-val"
+				onkeyup="handleKeyUp(event)" />
+			<div>
+				<ul id="restaurant-list"></ul>
 			</div>
 		</div>
 		<div class="container">

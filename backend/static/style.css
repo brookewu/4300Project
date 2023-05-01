@@ -70,7 +70,7 @@
 #answer-box {
 	width: 700px;
 	margin-top: -470px;
-	overflow-y: scroll;
+	overflow-y: auto;
 }
 
 .episode-title {

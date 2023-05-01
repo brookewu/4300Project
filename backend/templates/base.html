@@ -20,8 +20,7 @@
 				<h1 id="title-color">CuisineCheck</h1>
 				<p id="small-title">Philadelphia</p>
 			</div>
-			<div class="search-box" 
-				onclick="sendFocus('filter-text-val')" 
+			<div class="search-box" onclick="sendFocus('filter-text-val')"
 				onkeyup="editDistance('get_names', 'filter-text-val','restaurant-list')">
 				<input autocomplete="off" placeholder="Search for your favorite restaurant" id="filter-text-val"
 					onkeyup="handleKeyUp(event)" />
@@ -40,8 +39,8 @@
 				</div>
 				<div class="blacklist-box">
 					<input type="text" placeholder="Dislike a restaurant?" id="blacklist-val"
-					onkeyup="editDistance('get_names', 'blacklist-val','blacklist-list')"
-					onclick="fillTags('get_names', 'blacklist-list')" />
+						onkeyup="editDistance('get_names', 'blacklist-val','blacklist-list')"
+						onclick="fillTags('get_names', 'blacklist-list')" />
 					<ul id="blacklist-list"></ul>
 				</div>
 				<span class="input-subheader">Enter any desired features:</span>
@@ -167,7 +166,7 @@
 				})
 		}
 
-			
+
 
 		cuisineList.addEventListener('click', (event) => {
 			cuisineVal.value = event.target.textContent.trim();
@@ -216,7 +215,7 @@
 		}
 
 
-		
+
 
 		// Get the slider input element and rating-value span element
 		const ratingInput = document.getElementById('rating-input');
@@ -291,7 +290,7 @@
 					<p class='company-address'>${address}</p>
 					<hr>
 					<p class='traits'><span class='label'>Top traits:</span> ${firstThreeTraits}</p>
-    				<p class='topWords'><span class='label'>Top key words:</span> ${firstThreeWords}</p>
+    				<p class='topWords'><span class='label'>Top key words amongst reviewers:</span> ${firstThreeWords}</p>
 					${categories.length !== 0 ? `<p class='topWords'><span class='label'>Establishment:</span> ${categories}</p>` : ''}
 					${cuisine.length !== 0 ? `<p class='topWords'><span class='label'>Cuisines:</span> ${cuisine}</p>` : ''}
 					${specialty.length !== 0 ? `<p class='topWords'><span class='label'>Specialties:</span> ${specialty}</p>` : ''}
@@ -333,11 +332,11 @@
 			var searchParams = new URLSearchParams({
 				preferred: document.getElementById('filter-text-val').value,
 			});
-			searchParams.append("disliked", blacklistVal.value) 
-			searchParams.append("min_rating", ratingInput.value) 
-			searchParams.append("pos_cuisine", cuisineVal.value) 
-			searchParams.append("pos_specialty", specialtyVal.value) 
-			searchParams.append("pos_establishment", dietaryVal.value) 
+			searchParams.append("disliked", blacklistVal.value)
+			searchParams.append("min_rating", ratingInput.value)
+			searchParams.append("pos_cuisine", cuisineVal.value)
+			searchParams.append("pos_specialty", specialtyVal.value)
+			searchParams.append("pos_establishment", dietaryVal.value)
 			searchParams.append("trait", tagVal.value)
 			console.log(searchParams.toString())
 			var inputRestaurant = document.createElement('div');
@@ -349,6 +348,10 @@
 						if (index == 0) {
 							// Query company
 							console.log('User query company info: ', row);
+							
+							if (row == null) {
+								answerBox.innerHTML = '<div id="loading-text1">No results</div>';
+							}
 							if (row.address == null) {
 								return;
 							}

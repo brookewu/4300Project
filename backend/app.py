@@ -4,6 +4,7 @@ import collections
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
+import re
 
 # ROOT_PATH for linking with all your files.
 # Feel free to use a config.py or settings.py with a global export variable
@@ -13,7 +14,7 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
 # Don't worry about the deployment credentials, those are fixed
 # You can use a different DB name if you want to
 MYSQL_USER = "root"
-MYSQL_USER_PASSWORD = "jonaccar96$"
+MYSQL_USER_PASSWORD = ""
 MYSQL_PORT = 3306
 MYSQL_DATABASE = "restaurants"
 
@@ -68,20 +69,22 @@ def get_restaurant_name(query):
     Returns a string name identifier of a restaurant given some [query].
     Note: Adds escape in front of special characters for sql string comparison 
     """
+    query = re.sub(r"([\'&])", r'\\\1', query)
     matched_restaurant_sql = f"""SELECT company_one FROM scores WHERE LOWER( scores.company_one ) LIKE '{query.lower()}%%' LIMIT 1"""
     matched_restaurant_data = mysql_engine.query_selector(matched_restaurant_sql)
     
     # Extract out searched restaurant from sql data response
-    matched_restauarant = ""
+    matched_restaurant = ""
     for x in matched_restaurant_data:
-        matched_restauarant = x[0]
+        matched_restaurant = x[0]
         break
 
     # Reformat serached restauarnt string to allow sql comparison with special characters
-    matched_restauarant = matched_restauarant.replace("'", "\\'")
-    matched_restauarant = matched_restauarant.replace("&", "\&")
+    # matched_restaurant = matched_restaurant.replace("'", "\\'")
+    # matched_restaurant = matched_restaurant.replace("&", "\&")
+    matched_restaurant = re.sub(r"([\'&])", r'\\\1', matched_restaurant)
 
-    return matched_restauarant
+    return matched_restaurant
 
 def get_restaurant_attributes(restaurant_name):
     """
@@ -394,7 +397,7 @@ def serialize_result_data(searched_attributes_dict, result_data, disliked_restau
     return serialized
 
 count = 0
-def sql_search(input, disliked, min_rating, pos_cuisine, pos_specialty, pos_establishment, neg_cuisine, neg_specialty, neg_establishment, k):
+def sql_search(input_name, disliked, min_rating, pos_cuisine, pos_specialty, pos_establishment, neg_cuisine, neg_specialty, neg_establishment, k):
     """
     example return:
     {"name": "B&B Breakfast and Lunch", 
@@ -409,7 +412,7 @@ def sql_search(input, disliked, min_rating, pos_cuisine, pos_specialty, pos_esta
     """
 
     # Match input with a restaurant to be our searched restaurant
-    searched_restaurant = get_restaurant_name(input)
+    searched_restaurant = get_restaurant_name(input_name)
 
     # Match disliked input with a restaurant
     disliked_restaurant = get_restaurant_name(disliked)

@@ -381,12 +381,13 @@
 			var searchParams = new URLSearchParams({
 				preferred: document.getElementById('filter-text-val').value,
 			});
-			searchParams.append("disliked", blacklistVal.value) // # Temp example for search "Marathon Grill"
-			searchParams.append("min_rating", ratingInput.value) // temp value for min_rating
-			searchParams.append("pos_cuisine", cuisineVal.value) // temp value for min_rating
-			searchParams.append("pos_specialty", specialtyVal.value) // temp value for min_rating
-			searchParams.append("pos_establishment", dietaryVal.value) // temp value for min_rating
+			searchParams.append("disliked", blacklistVal.value) 
+			searchParams.append("min_rating", ratingInput.value) 
+			searchParams.append("pos_cuisine", cuisineVal.value) 
+			searchParams.append("pos_specialty", specialtyVal.value) 
+			searchParams.append("pos_establishment", dietaryVal.value) 
 			console.log(searchParams.toString())
+			var inputRestaurant = document.createElement('div');
 			fetch('/results?' + searchParams.toString())
 				.then((response) => response.json())
 				.then((data) =>
@@ -398,8 +399,7 @@
 							if (row.address == null) {
 								return;
 							}
-							let tempDiv = document.createElement('div');
-							tempDiv.innerHTML = answerBoxTemplate(
+							inputRestaurant.innerHTML = answerBoxTemplate(
 								row.name,
 								row.address,
 								row.stars,
@@ -415,9 +415,17 @@
 								row.cuisines,
 								row.specialities,
 								true
-							); // TODO: Change to show more attributes than just name and useful review
-							document.getElementById('answer-box').appendChild(tempDiv);
+							);
 						} else {
+							// adding labels for result sections and query restaurant
+							var input_section = document.createElement('div');
+							input_section.innerHTML = '<div id="loading-text">Restaurants similar to...</div>';
+							document.getElementById('answer-box').appendChild(input_section);
+							document.getElementById('answer-box').appendChild(inputRestaurant);
+							var result_section = document.createElement('div');
+							result_section.innerHTML = '<div id="loading-text">Results</div>';
+							document.getElementById('answer-box').appendChild(result_section);
+
 							row.forEach((r, i) => {
 								// Matched companies
 								console.log('Match #', i + 1, ' company info: ', r);
@@ -440,6 +448,7 @@
 									false
 								); // TODO: Change to show more attributes than just name and useful review
 								document.getElementById('answer-box').appendChild(tempDiv);
+								console.log("index", index, document.getElementById('answer-box'))
 							});
 						}
 					})

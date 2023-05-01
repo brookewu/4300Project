@@ -335,7 +335,7 @@ def generate_favorable(d, s, d_traits_top, s_traits_top, pos_cuisine, pos_specia
 
     if trait != " ":
         score = get_trait_score(d, trait)
-        if score > 50 : user_inputted.append(d.get("name")+ " is " + str(round(score)) + "% match to " + trait)
+        if score > 50 : user_inputted.append(d.get("name")+ " is a " + str(round(score)) + "% match to " + trait)
 
     if len(user_inputted) > 0:
         single_dict = {

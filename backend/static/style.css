@@ -52,6 +52,10 @@
 	font-size: medium;
 }
 
+.box-template .label {
+	text-decoration: underline;
+}
+
 #filter-text-val {
 	font-family: 'Courier', sans-serif;
 }
@@ -64,7 +68,7 @@
 
 #answer-box {
 	width: 700px;
-	margin-top: -250px;
+	margin-top: -470px;
 	overflow-y: scroll;
 }
 
@@ -92,6 +96,7 @@
 	padding: 10px;
 	margin-bottom: 20px;
 	background-color: #f9f9f9;
+	overflow: auto; /* Add this line */
 }
 
 .box-template h3 {
@@ -113,6 +118,13 @@
 	font-style: italic;
 	font-size: 16px;
 	color: #999;
+	padding-top: 0px;
+}
+
+.box-template .header-container {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
 
 .box-template .star-ratings {
@@ -124,6 +136,27 @@
 .box-template .star-ratings span:before {
 	content: '\2605';
 	margin-right: 5px;
+}
+
+.box-template hr {
+	border: 0;
+	border-top: 1px solid #ccc;
+	margin: 10px 0;
+}
+
+.box-template .traits,
+.box-template .topWords {
+	font-size: 16px;
+	font-weight: 400;
+	color: #666;
+	margin: 5px 0;
+}
+
+.box-template .intro,
+.box-template .points {
+	font-size: 16px;
+	font-weight: 400;
+	color: #666;
 }
 
 .review {
@@ -183,8 +216,12 @@
 	box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
 }
 
-.rating-box,
-.blacklist-box {
+.blacklist-box,
+.tags-box,
+.dietary-box,
+.specialty-box,
+.cuisine-box,
+.rating-box {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -221,11 +258,6 @@ input[type='text'] {
 	color: #333;
 }
 
-input:focus {
-	outline: none;
-	border-color: blue;
-}
-
 #restaurant-list {
 	position: absolute;
 	width: 25%;
@@ -248,5 +280,132 @@ input:focus {
 }
 
 #restaurant-list li:hover {
+	background-color: #f1f1f1;
+}
+
+#cuisine-list {
+	position: absolute;
+	width: 50%;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	background-color: #fff;
+
+	border-top: none;
+	max-height: 200px;
+	overflow-y: auto;
+	top: 57.5%;
+	left: 5%;
+}
+
+#cuisine-list li {
+	padding: 8px;
+	cursor: pointer;
+	font-family: 'Courier', sans-serif;
+}
+
+#cuisine-list li:hover {
+	background-color: #f1f1f1;
+}
+
+#specialty-list {
+	position: absolute;
+	width: 50%;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	background-color: #fff;
+
+	border-top: none;
+	max-height: 200px;
+	overflow-y: auto;
+	top: 70.5%;
+	left: 5%;
+}
+
+#specialty-list li {
+	padding: 8px;
+	cursor: pointer;
+	font-family: 'Courier', sans-serif;
+}
+
+#specialty-list li:hover {
+	background-color: #f1f1f1;
+}
+
+#dietary-list {
+	position: absolute;
+	width: 50%;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	background-color: #fff;
+
+	border-top: none;
+	max-height: 200px;
+	overflow-y: auto;
+	top: 83.5%;
+	left: 5%;
+}
+
+#dietary-list li {
+	padding: 8px;
+	cursor: pointer;
+	font-family: 'Courier', sans-serif;
+}
+
+#dietary-list li:hover {
+	background-color: #f1f1f1;
+}
+
+#tag-list {
+	position: absolute;
+	width: 50%;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	background-color: #fff;
+
+	border-top: none;
+	max-height: 130px;
+
+	top: 96.5%;
+	left: 5%;
+	overflow-y: auto;
+}
+
+#tag-list li {
+	padding: 8px;
+	cursor: pointer;
+	font-family: 'Courier', sans-serif;
+}
+
+#tag-list li:hover {
+	background-color: #f1f1f1;
+}
+
+#blacklist-list {
+	position: absolute;
+	width: 50%;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	background-color: #fff;
+
+	border-top: none;
+	max-height: 130px;
+
+	top: 45%;
+	left: 5%;
+	overflow-y: auto;
+}
+
+#blacklist-list li {
+	padding: 8px;
+	cursor: pointer;
+	font-family: 'Courier', sans-serif;
+}
+
+#blacklist-list li:hover {
 	background-color: #f1f1f1;
 }

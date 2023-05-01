@@ -230,7 +230,7 @@ def generate_metrics(d, s, d_traits, s_traits_top):
                      str(round(d_traits[0][1]*100))+
                      "% match to the " + d_traits[0][0] + " trait, " + str(round(d_traits[1][1]*100))+
                      "% match to the " + d_traits[1][0] + " trait, and " + str(round(d_traits[2][1]*100))+
-                     "% match to the " + d_traits[2][0] + " trait")
+                     "% match to the " + d_traits[2][0] + " trait.")
     
     total_trait_score = 0
     matching_trait_score = 0
@@ -274,7 +274,7 @@ def generate_favorable(d, s, d_traits_top, s_traits_top, pos_cuisine, pos_specia
             "intro" : "Both "+ d.get("name")+ " and " + s.get("name")+ "...",
             "points": both_favorable
         }
-        favorable_traits.append(both_dict)
+        favorable_traits.append(both_favorable)
     
     # TODO: Incorporate inputs pos_cuisine, pos_specialty, pos_establishment 
     # to favorable_traits when applicable
@@ -344,6 +344,7 @@ def generate_unfavorable(d, s, disliked_restaurant, neg_cuisine, neg_specialty, 
     return unfavorable_traits
 
 
+
 def generate_description(s, d, disliked_restaurant, pos_cuisine, pos_specialty, pos_establishment, neg_cuisine, neg_specialty, neg_establishment):
     """
     Returns a description of facts, favorable, and unfavorable aspects of the outputted restaurant.
@@ -364,7 +365,7 @@ def generate_description(s, d, disliked_restaurant, pos_cuisine, pos_specialty, 
         "points": metrics_lst
     }
     description["favorable"] = {
-        "intro": "You may also like " + d.get("name") + " because...",
+        "intro": "Both " + d.get("name") + " and " + s.get("name") + "...",
         "points": favorable_traits
     }
     description["unfavorable"] = {
@@ -392,10 +393,21 @@ def serialize_result_data(searched_attributes_dict, result_data, disliked_restau
     serialized.append(matches)
     return serialized
 
+count = 0
 def sql_search(input, disliked, min_rating, pos_cuisine, pos_specialty, pos_establishment, neg_cuisine, neg_specialty, neg_establishment, k):
     """
-    Returns the top k similar results for [input] with conditions [blacklist] and [min_rating].
+    example return:
+    {"name": "B&B Breakfast and Lunch", 
+    "address": "5601 Germantown Ave", 
+    "postal_code": 19144, 
+    "stars": 3.5, 
+    "cuisines": [], 
+    "specialities": [], 
+    "establishments": ["Restaurants"], 
+    "top_words": ["breakfast", "grits", "bacon", "renovated", "toast", "browns", "eggs", "fish", "waffles", "hash"], 
+    "traits": [["homey", 0.8152], ["morning", 0.7264], ["meaty", 0.5896], ["flavorful", 0.4914], ["fresh", 0.3816], ["nightlife", 0.2669], ["fishy", 0.2501], ["hearty", 0.2107], ["crunchy", 0.1928]]}
     """
+
     # Match input with a restaurant to be our searched restaurant
     searched_restaurant = get_restaurant_name(input)
 
@@ -410,8 +422,10 @@ def sql_search(input, disliked, min_rating, pos_cuisine, pos_specialty, pos_esta
 
     # Serialize results for json response
     serialized = serialize_result_data(searched_attributes_dict, result_data, disliked_restaurant, pos_cuisine, pos_specialty, pos_establishment, neg_cuisine, neg_specialty, neg_establishment,)
-
-    print(json.dumps(serialized, default=str))
+    global count
+    if (count == 0):
+        print(json.dumps(serialized, default=str))
+    count = 1
     return json.dumps(serialized, default=str)
 
     
@@ -464,22 +478,22 @@ def get_cuisines():
     """
     Returns a set of all "good" cuisine foods from Yelp's business categories.
     """
-    cusines = {'Armenian', 'Israeli', 'Greek', 'Egyptian', 'Mediterranean', 'Indonesian', 'Himalayan/Nepalese', 'Venezuelan', 'Scandinavian', 'Modern European', 'Salvadoran', 'Hawaiian', 'Taiwanese', 'Cambodian', 'American (New)', 'Polish', 'Vietnamese', 'Russian', 'Halal', 'Argentine', 'Colombian', 'Asian Fusion', 'Cajun/Creole', 'Ethiopian', 'Korean', 'Soul Food', 'Pakistani', 'Peruvian', 'Chinese', 'Italian', 'Basque', 'Spanish', 'Thai', 'Indian', 'Szechuan', 'Sicilian', 'Sardinian', 'Mongolian', 'Filipino', 'Bangladeshi', 'Middle Eastern', 'Caribbean', 'Austrian', 'Pan Asian', 'Uzbek', 'Senegalese', 'Shanghainese',  'Ukrainian', 'French', 'Persian/Iranian', 'Afghan', 'Arabic', 'Barbeque', 'Mexican', 'Turkish', 'Cuban', 'Seafood', 'Latin American', 'Honduran', 'Puerto Rican','Hungarian', 'South African', 'Irish', 'Georgian',
+    cuisines = ['Armenian', 'Israeli', 'Greek', 'Egyptian', 'Mediterranean', 'Indonesian', 'Himalayan/Nepalese', 'Venezuelan', 'Scandinavian', 'Modern European', 'Salvadoran', 'Hawaiian', 'Taiwanese', 'Cambodian', 'American (New)', 'Polish', 'Vietnamese', 'Russian', 'Halal', 'Argentine', 'Colombian', 'Asian Fusion', 'Cajun/Creole', 'Ethiopian', 'Korean', 'Soul Food', 'Pakistani', 'Peruvian', 'Chinese', 'Italian', 'Basque', 'Spanish', 'Thai', 'Indian', 'Szechuan', 'Sicilian', 'Sardinian', 'Mongolian', 'Filipino', 'Bangladeshi', 'Middle Eastern', 'Caribbean', 'Austrian', 'Pan Asian', 'Uzbek', 'Senegalese', 'Shanghainese',  'Ukrainian', 'French', 'Persian/Iranian', 'Afghan', 'Arabic', 'Barbeque', 'Mexican', 'Turkish', 'Cuban', 'Seafood', 'Latin American', 'Honduran', 'Puerto Rican','Hungarian', 'South African', 'Irish', 'Georgian',
               'Brazilian', 'Tex-Mex', 'German', 'Dominican', 'Iberian',  
               'New Mexican Cuisine', 'Australian', 'British', 'Moroccan', 'Hainan', 'American (Traditional)', 
              'Cantonese', 'African', 'Singaporean', 'Portuguese', 'Haitian', 'Malaysian', 'Laotian', 'Japanese', 
-            'Belgian', 'Southern', 'Burmese', 'Lebanese'}
+            'Belgian', 'Southern', 'Burmese', 'Lebanese']
     
-    return json.dumps(cusines, default=str)
+    return json.dumps(cuisines, default=str)
     
 @app.route("/specialty")
 def get_specialty_foods():
     """
     Returns a set of all "good" specialty foods from Yelp's business categories.
     """
-    specialty_foods = {'Cupcakes', 'Teppanyaki', 'Hot Dogs', 'Donuts', 'Ramen', 'Fish & Chips', 'Wraps', 'Bagels', 'Falafel', 'Poke', 'Macarons', 'Shaved Ice', 'Noodles', 'Soup', 'Pretzels', 'Cheesesteaks', 'Kombucha', 'Chicken Wings', 'Japanese Curry', 'Hot Pot', 'Gelato', 'Tacos', 'Salad', 
+    specialty_foods = ['Cupcakes', 'Teppanyaki', 'Hot Dogs', 'Donuts', 'Ramen', 'Fish & Chips', 'Wraps', 'Bagels', 'Falafel', 'Poke', 'Macarons', 'Shaved Ice', 'Noodles', 'Soup', 'Pretzels', 'Cheesesteaks', 'Kombucha', 'Chicken Wings', 'Japanese Curry', 'Hot Pot', 'Gelato', 'Tacos', 'Salad', 
                      'Burgers', 'Waffles', 'Beer', 'Empanadas', 'Acai Bowls', 'Sandwiches','Kebab', 'Bubble Tea', 'Fondue', 'Coffee & Tea', 'Fruits & Veggies',
-                      'Pizza', 'Tapas/Small Plates', 'Ice Cream & Frozen Yogurt', 'Custom Cakes'}
+                      'Pizza', 'Tapas/Small Plates', 'Ice Cream & Frozen Yogurt', 'Custom Cakes']
     return json.dumps(specialty_foods, default=str)
 
 @app.route("/dietary")
@@ -487,7 +501,7 @@ def get_dietary_restrictions():
     """
     Returns a set of all dietary from Yelp's business categories.
     """
-    dietary_restrictions = { 'Vegan', 'Gluten-Free', 'Kosher', 'Vegetarian'}
+    dietary_restrictions = [ 'Vegan', 'Gluten-Free', 'Kosher', 'Vegetarian']
     return json.dumps(dietary_restrictions, default=str)
 
 @app.route("/establishments")
@@ -495,12 +509,12 @@ def get_establishments():
     """
     Returns a set of all "good" establishments from Yelp's business categories.
     """
-    establishments = {'Gastropubs', 'Active Life', 'Pasta Shops', 'Supper Clubs', 'Colleges & Universities', 'Bakeries', 'Grocery',  'Delicatessen', 'Dive Bars','Bistros', 'Creperies', 'Speakeasies', 'Fast Food', 'Wine Bars', 'Hookah Bars', 'Themed Cafes', 'Delis', 'Tiki Bars', 'Beer Hall', 'Champagne Bars', 'Distilleries', 'Public Markets', 'Beer Bar', 'Conveyor Belt Sushi', 'Food Trucks', 'Lounges', 'Cocktail Bars', 'Meat Shops',  'Irish Pub',  'Food Banks',  'Desserts', 'Food Court', 'Tapas Bars', 
+    establishments = ['Gastropubs', 'Active Life', 'Pasta Shops', 'Supper Clubs', 'Colleges & Universities', 'Bakeries', 'Grocery',  'Delicatessen', 'Dive Bars','Bistros', 'Creperies', 'Speakeasies', 'Fast Food', 'Wine Bars', 'Hookah Bars', 'Themed Cafes', 'Delis', 'Tiki Bars', 'Beer Hall', 'Champagne Bars', 'Distilleries', 'Public Markets', 'Beer Bar', 'Conveyor Belt Sushi', 'Food Trucks', 'Lounges', 'Cocktail Bars', 'Meat Shops',  'Irish Pub',  'Food Banks',  'Desserts', 'Food Court', 'Tapas Bars', 
                      'Farmers Market', 'Patisserie/Cake Shop', 'Comedy Clubs', 'Candy Stores', 'Pop-Up Restaurants', 'Chocolatiers & Shops', 'Tea Rooms', 'Bars', 'Convenience Stores', 'Food Stands', 'Gay Bars', 'Street Vendors', 'Seafood Markets', 'Brasseries',  'Piano Bars', 'Cafes', 'Brewpubs', 'Jazz & Blues', 'Poutineries', 'Cideries', 
                      'Internet Cafes', 'Casinos', 'Breweries', 'Coffee Roasteries','Do-It-Yourself Food', 'Live/Raw Food', 'Cheese Shops','Organic Stores', 
                      'Strip Clubs', 'Chicken Shop', 'Sushi Bars', 'Dim Sum', 'Izakaya', 'Smokehouse', 'Sports Bars',
                      'Butcher', 'Buffets', 'Wineries', 'Juice Bars & Smoothies', 'Steakhouses',
-                     'Beer Gardens', 'Diners', 'Cafeteria',  'Karaoke', 'Pubs', 'Whiskey Bars', 'Dinner Theater'}
+                     'Beer Gardens', 'Diners', 'Cafeteria',  'Karaoke', 'Pubs', 'Whiskey Bars', 'Dinner Theater']
     return json.dumps(establishments, default=str)
 
 @app.route("/traits")

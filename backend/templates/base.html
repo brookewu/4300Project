@@ -21,15 +21,15 @@
 				<h1 id="title-color">CuisineCheck</h1>
 				<p id="small-title">Philadelphia</p>
 			</div>
-				<div class="search-box" onclick="sendFocus()">
-					<input
-						autocomplete="off"
-						placeholder="Search for your favorite restaurant"
-						id="filter-text-val"
-						onkeyup="handleKeyUp(event)"
-					/>
-					<ul id="restaurant-list"></ul>
-				</div>
+			<div class="search-box" onclick="sendFocus('filter-text-val')">
+				<input
+					autocomplete="off"
+					placeholder="Search for your favorite restaurant"
+					id="filter-text-val"
+					onkeyup="handleKeyUp(event)"
+				/>
+				<ul id="restaurant-list"></ul>
+			</div>
 		</div>
 		<div class="container">
 			<h2 class="input-heading">Additional Inputs</h2>
@@ -40,34 +40,99 @@
 					<span id="rating-value">0</span>
 				</div>
 				<div class="blacklist-box">
-					<label for="blacklist-input">Blacklist a Restaurant:</label>
-					<input type="text" id="blacklist-input" name="blacklist-input" />
+					<input
+						type = "text"
+						placeholder="Dislike a restaurant?"
+						id="blacklist-val"
+						onkeyup="editDistance('get_names', 'blacklist-val','blacklist-list')"
+						onclick="fillTags('get_names', 'blacklist-list')"
+					/>
+					<ul id="blacklist-list"></ul>
 				</div>
+				<div class="cuisine-box">
+					<input
+						type = "text"
+						placeholder="Pick a cuisine"
+						id="cuisine-val"
+						onkeyup="editDistance('cuisines', 'cuisine-val','cuisine-list')"
+						onclick="fillTags('cuisines', 'cuisine-list')"
+					/>
+					<ul id="cuisine-list"></ul>
+				</div>
+				<div class="specialty-box">
+					<input
+						type = "text"
+						placeholder="Pick a specialty"
+						id="specialty-val"
+						onkeyup="editDistance('specialty', 'specialty-val','specialty-list')"
+						onclick="fillTags('specialty', 'specialty-list')"
+					/>
+					<ul id="specialty-list"></ul>
+				</div>
+				<div class="dietary-box">
+					<input
+						type = "text"
+						placeholder="Pick an establishment"
+						id="dietary-val"
+						onclick="fillTags('establishments', 'dietary-list')"
+						onkeyup="editDistance('establishments', 'dietary-val','dietary-list')"
+					/>
+					<ul id="dietary-list"></ul>
+				</div>
+				<div class="tags-box">
+					<input
+						type = "text"
+						placeholder="Pick a trait"
+						id="tag-val"
+						onclick="fillTags('traits', 'tag-list')"
+						onkeyup="editDistance('traits', 'tag-val', 'tag-list')"
+					/>
+					<ul id="tag-list"></ul>
+				</div>
+				
 			</div>
 		</div>
 		<div id="answer-box"></div>
 	</div>
-	</div>
+</div>
 
 	<script>
 		const filterTextVal = document.querySelector('#filter-text-val');
 		const restaurantList = document.querySelector('#restaurant-list');
+
+		const cuisineList = document.querySelector('#cuisine-list');
+		const cuisineVal = document.querySelector('#cuisine-val');
+
+		const specialtyList = document.querySelector('#specialty-list');
+		const specialtyVal = document.querySelector('#specialty-val');
+
+		const dietaryList = document.querySelector('#dietary-list');
+		const dietaryVal = document.querySelector('#dietary-val');
+
+		const tagList = document.querySelector('#tag-list');
+		const tagVal = document.querySelector('#tag-val');
+
+		const blacklistList = document.querySelector('#blacklist-list');
+		const blacklistVal = document.querySelector('#blacklist-val');
+
+
 		const searchBox = document.querySelector('.search-box');
 
 		let isFiltering = false;
 
 		function handleKeyUp(event) {
+			
 			if (event.keyCode === 13) {
 				if (!isFiltering) {
 				isFiltering = true;
 				setTimeout(() => {
+					restaurantList.innerHTML = '';
 					filterText();
 					isFiltering = false;
 				}, 1000);
 				}
-			} else {
-				filterText();
-				editDistance();
+			} else{
+				editDistance('get_names', 'filter-text-val','restaurant-list');
 			}
 		}
 
@@ -80,22 +145,73 @@
 		document.addEventListener('click', (event) => {
 			if (!searchBox.contains(event.target)) {
 				restaurantList.innerHTML = '';
+				cuisineList.innerHTML = '';
+				specialtyList.innerHTML = '';
+				dietaryList.innerHTML = '';
+				tagList.innerHTML = '';
+				blacklistList.innerHTML = '';
 			}
 		});
 
 		restaurantList.addEventListener('click', (event) => {
-			filterTextVal.value = event.target.textContent.trim();
+			document.getElementById('filter-text-val').value = event.target.textContent.trim();
 			restaurantList.innerHTML = '';
 			filterText();
 		});
 
-		function editDistance(){
-			fetch('get_names')
+		cuisineList.addEventListener('click', (event) => {
+			cuisineVal.value = event.target.textContent.trim();
+			cuisineList.innerHTML = '';
+			filterText();
+		});
+
+		specialtyList.addEventListener('click', (event) => {
+			specialtyVal.value = event.target.textContent.trim();
+			specialtyList.innerHTML = '';
+			filterText();
+		});
+
+		dietaryList.addEventListener('click', (event) => {
+			dietaryVal.value = event.target.textContent.trim();
+			dietaryList.innerHTML = '';
+			filterText();
+		});
+
+		tagList.addEventListener('click', (event) => {
+			tagVal.value = event.target.textContent.trim();
+			tagList.innerHTML = '';
+			filterText();
+		});
+
+		blacklistList.addEventListener('click', (event) => {
+			blacklistVal.value = event.target.textContent.trim();
+			blacklistList.innerHTML = '';
+			filterText();
+		});
+
+		function fillTags(route,list){
+			fetch(route)
 				.then((response) => response.json())
 				.then((data) => {
-					const text = document.getElementById('filter-text-val').value;
+					const dropdown = document.getElementById(list);
+					data.forEach((name) => {
+						const menuItem = document.createElement('li');
+						menuItem.classList.add('dropdown-item');
+						menuItem.href = '#';
+						menuItem.textContent = name;
+						dropdown.appendChild(menuItem);
+						
+					});
+				})
+		}
+
+		function editDistance(route, input, list){
+			fetch(route)
+				.then((response) => response.json())
+				.then((data) => {
+					const text = document.getElementById(input).value;
 					if (text == ""){
-						const dropdown = document.getElementById('restaurant-list');
+						const dropdown = document.getElementById(list);
 						dropdown.innerHTML = ''; 
 						return;
 					}
@@ -108,7 +224,7 @@
 					
 					const topNames = distances.slice(0, 5).map((d) => d.name);
 					
-					const dropdown = document.getElementById('restaurant-list');
+					const dropdown = document.getElementById(list);
 
 					dropdown.innerHTML = ''; 
 					
@@ -131,7 +247,7 @@
 			for (let i = 0; i <= m; i++) {
 				dp[i] = [];
 				for (let j = 0; j <= n; j++) {
-				dp[i][j] = 0;
+					dp[i][j] = 0;
 				}
 			}
 			for (let i = 1; i <= m; i++) {
@@ -145,7 +261,7 @@
 				if (str1[i-1] === str2[j-1]) {
 					dp[i][j] = dp[i-1][j-1];
 				} else {
-					dp[i][j] = 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+					dp[i][j] = 2 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
 				}
 				}
 			}
@@ -156,12 +272,20 @@
 		const ratingInput = document.getElementById('rating-input');
 		const ratingValue = document.getElementById('rating-value');
 
-		const blackList = document.getElementById('blacklist-input');
-
 		// Add an event listener to the slider input element
 		ratingInput.addEventListener('input', () => {
 			// Set the value of the rating-value span element to the current value of the slider
 			ratingValue.innerText = ratingInput.value;
+			if (!isFiltering) {
+				isFiltering = true;
+				setTimeout(() => {
+					restaurantList.innerHTML = '';
+					filterText();
+					isFiltering = false;
+				}, 1000);
+			
+			}
+			
 		});
 		
 		function answerBoxTemplate(
@@ -169,7 +293,14 @@
 			address,
 			stars,
 			categories,
-			review,
+			traits,
+			topWords,
+			intro1,
+			points1,
+			intro2,
+			points2,
+			cuisine,
+			specialty,
 			match
 		) {
 			if (document.getElementById('filter-text-val').value == '') {
@@ -177,28 +308,70 @@
 			}
 			
 			const bgColor = match ? '#fff6f6' : '#f9f9f9';
-			return `<div class='border box-template' style='background-color: ${bgColor};'>
-                <h3 class='episode-title'>${name}</h3>
-                <p class='company-address'>${address}</p>
-                <p class='star-ratings'>${'<span></span>'.repeat(stars)}</p>
-                <p class='category-list'>${categories}</p>
-                <p class='review' style='margin-top: 15px;'>Most useful review: ${review}</p>
-            </div>`;
+			let firstThreeTraits = traits.slice(0, 3).map(trait => trait[0]).join(', ');
+			let firstThreeWords = topWords.slice(0, 3).join(', ');
+
+			if (match){
+				return `<div class='border box-template' style='background-color: ${bgColor};'>
+					<div class='header-container'>
+						<h3 class='episode-title'>${name}</h3>
+						<p class='star-ratings'>${'<span></span>'.repeat(stars)}</p>
+					</div>
+					<p class='company-address'>${address}</p>
+					<p class='category-list'>${categories}</p>
+					<hr>
+					<p class='traits'><span class='label'>Top traits:</span> ${firstThreeTraits}</p>
+    				<p class='topWords'><span class='label'>Top key words amongst reviewers:</span> ${firstThreeWords}</p>
+					${cuisine.length !== 0 ? `<p class='topWords'><span class='label'>Cuisines:</span> ${cuisine}</p>` : ''}
+					${specialty.length !== 0 ? `<p class='topWords'><span class='label'>Specialties:</span> ${specialty}</p>` : ''}
+
+				</div>`;
+			}else {
+				
+				return `<div class='border box-template' style='background-color: ${bgColor};'>
+					<div class='header-container'>
+						<h3 class='episode-title'>${name}</h3>
+						<p class='star-ratings'>${'<span></span>'.repeat(stars)}</p>
+					</div>
+					<p class='company-address'>${address}</p>
+					<p class='category-list'>${categories}</p>
+					<hr>
+					<p class='traits'><span class='label'>Top traits:</span> ${firstThreeTraits}</p>
+    				<p class='topWords'><span class='label'>Top key words:</span> ${firstThreeWords}</p>
+					${cuisine.length !== 0 ? `<p class='topWords'><span class='label'>Cuisines:</span> ${cuisine}</p>` : ''}
+					${specialty.length !== 0 ? `<p class='topWords'><span class='label'>Specialties:</span> ${specialty}</p>` : ''}
+					<hr>
+					<p class='intro'>${intro1}</p>
+					<ul class='points'>
+						${points1.map(point => `<li>${point}</li>`).join('')}
+					</ul>
+					<p class='intro'>${intro2}</p>
+					<ul class='points'>
+						${points2.map(point => `<li>${point}</li>`).join('')}
+					</ul>
+				</div>`;
+			}
+
+            
 		}
 
-		function sendFocus() {
-			document.getElementById('filter-text-val').focus();
+		function sendFocus(val) {
+			document.getElementById(val).focus();
 		}
 
 		function filterText() {
+
 			document.getElementById('answer-box').innerHTML = '';
 			
-			//console.log(document.getElementById('filter-text-val').value);
 			var searchParams = new URLSearchParams({
 				preferred: document.getElementById('filter-text-val').value,
 			});
-			searchParams.append("disliked", blackList.value) // # Temp example for search "Marathon Grill"
+			searchParams.append("disliked", blacklistVal.value) // # Temp example for search "Marathon Grill"
 			searchParams.append("min_rating", ratingInput.value) // temp value for min_rating
+			searchParams.append("pos_cuisine", cuisineVal.value) // temp value for min_rating
+			searchParams.append("pos_specialty", specialtyVal.value) // temp value for min_rating
+			searchParams.append("pos_establishment", dietaryVal.value) // temp value for min_rating
+			console.log(searchParams.toString())
 			fetch('/results?' + searchParams.toString())
 				.then((response) => response.json())
 				.then((data) =>
@@ -214,8 +387,15 @@
 								row.name,
 								row.address,
 								row.stars,
-								row.categories,
-								row.useful_review,
+								row.establishments,
+								row.traits,
+								row.top_words,
+								null,
+								null,
+								null, 
+								null,
+								row.cuisines,
+								row.specialities,
 								true
 							); // TODO: Change to show more attributes than just name and useful review
 							document.getElementById('answer-box').appendChild(tempDiv);
@@ -228,8 +408,15 @@
 									r.name,
 									r.address,
 									r.stars,
-									r.categories,
-									r.useful_review,
+									r.establishments,
+									r.traits,
+									r.top_words,
+									r.description.facts.intro,
+									r.description.facts.points,
+									r.description.favorable.intro,
+									r.description.favorable.points[0],
+									r.cuisines,
+									r.specialities,					
 									false
 								); // TODO: Change to show more attributes than just name and useful review
 								document.getElementById('answer-box').appendChild(tempDiv);

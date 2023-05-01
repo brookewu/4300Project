@@ -531,4 +531,4 @@ def get_reviewer_defined_traits():
     return json.dumps(traits, default=str)
 
 # Run application
-app.run(debug=True)
+# app.run(debug=True)

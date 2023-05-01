@@ -23,7 +23,7 @@ mysql_engine = MySQLDatabaseHandler(
 
 # Path to init.sql file. This file can be replaced with your own file for testing on localhost, but do NOT move the init.sql file
 # mysql_engine.load_file_into_db()
-db_path = os.path.join(os.environ['ROOT_PATH'],'restaurants_old.sql')
+db_path = os.path.join(os.environ['ROOT_PATH'],'init.sql')
 mysql_engine.load_file_into_db(file_path = db_path)
 
 app = Flask(__name__)

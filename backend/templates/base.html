@@ -13,6 +13,31 @@
 			background-repeat: no-repeat;
 			background-size: cover;
 		}
+
+		.restaurant-list-container {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			min-height: 100vh;
+			text-align: center;
+		}
+
+		#restaurant-list {
+			position: absolute;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 100%;
+			max-width: 600px;
+			z-index: 1;
+			background-color: white;
+			border: 1px solid rgba(0, 0, 0, 0.1);
+			border-radius: 4px;
+			box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+			list-style-type: none;
+			padding: 0;
+			margin: 0;
+		}
 	</style>
 	<div class="full-body-container">
 		<div class="top-text">
@@ -23,7 +48,9 @@
 			<div class="search-box" onclick="sendFocus('filter-text-val')">
 				<input autocomplete="off" placeholder="Search for your favorite restaurant" id="filter-text-val"
 					onkeyup="handleKeyUp(event)" />
-				<ul id="restaurant-list"></ul>
+				<div class="restaurant-list-container">
+					<ul id="restaurant-list"></ul>
+				</div>
 			</div>
 		</div>
 		<div class="container">
@@ -273,6 +300,8 @@
 			points1,
 			intro2,
 			points2,
+			intro3,
+			points3,
 			cuisine,
 			specialty,
 			match
@@ -329,6 +358,11 @@
 							${points2[1]["points"].map(point => `<li>${point}</li>`).join('')}
 							</ul>`: ''}
 						</ul>
+					${points3.length > 0 ?
+						`<p class='intro'>${intro3}</p>
+					<ul class='points'>
+						${points3.map(point => `<li>${point}</li>`).join('')}
+					</ul>` : ''}
 				</div>`;
 			}
 
@@ -375,6 +409,8 @@
 								null,
 								null,
 								null,
+								null,
+								null,
 								row.cuisines,
 								row.specialities,
 								true
@@ -396,6 +432,8 @@
 									r.description.facts.points,
 									r.description.favorable.intro,
 									r.description.favorable.points,
+									r.description.unfavorable.intro,
+									r.description.unfavorable.points,
 									r.cuisines,
 									r.specialities,
 									false

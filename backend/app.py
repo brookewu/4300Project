@@ -389,7 +389,7 @@ def generate_unfavorable(d, s, disliked_restaurant, neg_cuisine, neg_specialty, 
         if score <= 50 : user_inputted.append(d.get("name")+ " is " + str(round(score)) + "% match to " + trait)
     single_dict["neg_inputs"] = user_inputted
 
-    unfavorable_traits.append(single_dict)
+    # unfavorable_traits.append(single_dict)
     return unfavorable_traits
 
 

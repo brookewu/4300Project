@@ -13,31 +13,6 @@
 			background-repeat: no-repeat;
 			background-size: cover;
 		}
-
-		.restaurant-list-container {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			min-height: 100vh;
-			text-align: center;
-		}
-
-		#restaurant-list {
-			position: absolute;
-			left: 50%;
-			transform: translateX(-50%);
-			width: 100%;
-			max-width: 600px;
-			z-index: 1;
-			background-color: white;
-			border: 1px solid rgba(0, 0, 0, 0.1);
-			border-radius: 4px;
-			box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-			list-style-type: none;
-			padding: 0;
-			margin: 0;
-		}
 	</style>
 	<div class="full-body-container">
 		<div class="top-text">
@@ -122,18 +97,16 @@
 		let isFiltering = false;
 
 		function handleKeyUp(event) {
-
 			if (event.keyCode === 13) {
 				if (!isFiltering) {
 					isFiltering = true;
 					setTimeout(() => {
-						restaurantList.innerHTML = '';
 						filterText();
 						isFiltering = false;
 					}, 1000);
 				}
 			} else {
-				editDistance('get_names', 'filter-text-val', 'restaurant-list');
+				editDistance("get_names", "filter-text-val", "restaurant-list");
 			}
 		}
 
@@ -374,8 +347,9 @@
 		}
 
 		function filterText() {
-
 			document.getElementById('answer-box').innerHTML = '';
+			const answerBox = document.getElementById('answer-box');
+			answerBox.innerHTML = '<div id="loading-text">Loading...</div>';
 
 			var searchParams = new URLSearchParams({
 				preferred: document.getElementById('filter-text-val').value,
@@ -390,6 +364,7 @@
 				.then((response) => response.json())
 				.then((data) =>
 					data.forEach((row, index) => {
+						document.getElementById('answer-box').innerHTML = '';
 						if (index == 0) {
 							// Query company
 							//console.log('User query company info: ', row);

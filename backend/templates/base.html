@@ -105,8 +105,6 @@
 						isFiltering = false;
 					}, 1000);
 				}
-			} else {
-				editDistance("get_names", "filter-text-val", "restaurant-list");
 			}
 		}
 
@@ -131,6 +129,35 @@
 			document.getElementById('filter-text-val').value = event.target.textContent.trim();
 			restaurantList.innerHTML = '';
 			filterText();
+		});
+
+
+		var restaurantNames = []
+
+		fetch("get_names")
+			.then((response) => response.json())
+			.then((data) => {
+				restaurantNames = data
+			})
+
+		const input = document.getElementById('filter-text-val');
+		const suggestionsContainer = document.getElementById('restaurant-list');
+
+		filterTextVal.addEventListener('input', function () {
+			const userInput = input.value.toLowerCase();
+			const filteredRestaurants = restaurantNames.filter(restaurantName => restaurantName.toLowerCase().startsWith(userInput));
+
+			suggestionsContainer.innerHTML = '';
+
+			filteredRestaurants.forEach(restaurantName => {
+				const suggestion = document.createElement('div');
+				suggestion.innerText = restaurantName;
+				suggestion.addEventListener('click', function () {
+					input.value = restaurantName;
+					suggestionsContainer.innerHTML = '';
+				});
+				suggestionsContainer.appendChild(suggestion);
+			});
 		});
 
 		cuisineList.addEventListener('click', (event) => {
@@ -367,7 +394,7 @@
 						document.getElementById('answer-box').innerHTML = '';
 						if (index == 0) {
 							// Query company
-							//console.log('User query company info: ', row);
+							console.log('User query company info: ', row);
 							if (row.address == null) {
 								return;
 							}

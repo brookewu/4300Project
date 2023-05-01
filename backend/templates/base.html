@@ -273,6 +273,8 @@
 			points1,
 			intro2,
 			points2,
+			intro3,
+			points3,
 			cuisine,
 			specialty,
 			match
@@ -329,6 +331,11 @@
 							${points2[1]["points"].map(point => `<li>${point}</li>`).join('')}
 							</ul>`: ''}
 						</ul>
+					${points3.length > 0 ?
+						`<p class='intro'>${intro3}</p>
+					<ul class='points'>
+						${points3.map(point => `<li>${point}</li>`).join('')}
+					</ul>` : ''}
 				</div>`;
 			}
 
@@ -374,6 +381,8 @@
 								null,
 								null,
 								null,
+								null,
+								null,
 								row.cuisines,
 								row.specialities,
 								true
@@ -395,6 +404,8 @@
 									r.description.facts.points,
 									r.description.favorable.intro,
 									r.description.favorable.points,
+									r.description.unfavorable.intro,
+									r.description.unfavorable.points,
 									r.cuisines,
 									r.specialities,
 									false

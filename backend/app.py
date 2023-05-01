@@ -326,26 +326,26 @@ def generate_unfavorable(d, s, disliked_restaurant, neg_cuisine, neg_specialty, 
     # to unfavorable_traits when applicable
     # done ??
 
-    single_dict = {}
-    user_inputted = []
-    if neg_cuisine != "":
-        d_cuisines = d.get("cuisines")
-        if neg_cuisine in d_cuisines:
-            user_inputted.append(d.get("name") + " features " + neg_cuisine + " cuisine")
+    # single_dict = {}
+    # user_inputted = []
+    # if neg_cuisine != "":
+    #     d_cuisines = d.get("cuisines")
+    #     if neg_cuisine in d_cuisines:
+    #         user_inputted.append(d.get("name") + " features " + neg_cuisine + " cuisine")
         
-    if neg_establishment != "":
-        d_est = d.get("establishments")
-        if neg_establishment in d_est:
-            user_inputted.append(d.get("name") + " is a " + neg_establishment)
+    # if neg_establishment != "":
+    #     d_est = d.get("establishments")
+    #     if neg_establishment in d_est:
+    #         user_inputted.append(d.get("name") + " is a " + neg_establishment)
 
-    if neg_specialty != "":
-        d_spec = d.get("specialities")
-        if neg_specialty in d_spec:
-            user_inputted.append(d.get("name") + " serves " + neg_specialty)
+    # if neg_specialty != "":
+    #     d_spec = d.get("specialities")
+    #     if neg_specialty in d_spec:
+    #         user_inputted.append(d.get("name") + " serves " + neg_specialty)
 
-    single_dict["neg_inputs"] = user_inputted
+    # single_dict["neg_inputs"] = user_inputted
 
-    unfavorable_traits.append(single_dict)
+    # unfavorable_traits.append(single_dict)
     return unfavorable_traits
 
 

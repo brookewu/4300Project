@@ -109,12 +109,14 @@ def get_disliked_score_subquery(disliked):
     disliked_score_subquery = f"""IF( scores.company_two IN ({disliked_similar_subquery} ), 0.98 , 1)"""
     return disliked_score_subquery
 
-def get_input_category_score(trait, liked, diff = .02):
+def get_input_category_score(trait, liked, diff = .1):
     """
     Gets the score for the inputted trait. 
     if liked = False then 'diff' will be subtracted to restaurants that have the trait 
     """
     
+    if trait == " ": return 0 
+
     liked_subquery = f"""SELECT name FROM attributes 
                     WHERE attributes.categories LIKE '%%{trait.lower()}%%' """
     

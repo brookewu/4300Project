@@ -262,17 +262,18 @@ input[type='text'] {
 }
 
 #restaurant-list {
-	position: relative;
-	width: 197.75%;
+	position: absolute;
+	width: 41%;
 	margin: 0;
 	padding: 0;
 	list-style: none;
 	background-color: #fff;
 
 	border-top: none;
+	max-height: 150px;
 	overflow-y: auto;
-	top: 107px;
-	left: -296.5px;
+	top: 33%;
+	left: 29.5%;
 }
 
 #restaurant-list li {

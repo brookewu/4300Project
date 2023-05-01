@@ -318,10 +318,10 @@
 						<p class='star-ratings'>${'<span></span>'.repeat(stars)}</p>
 					</div>
 					<p class='company-address'>${address}</p>
-					<p class='category-list'>${categories}</p>
 					<hr>
 					<p class='traits'><span class='label'>Top traits:</span> ${firstThreeTraits}</p>
     				<p class='topWords'><span class='label'>Top key words amongst reviewers:</span> ${firstThreeWords}</p>
+					${categories.length !== 0 ? `<p class='topWords'><span class='label'>Establishment:</span> ${categories}</p>` : ''}
 					${cuisine.length !== 0 ? `<p class='topWords'><span class='label'>Cuisines:</span> ${cuisine}</p>` : ''}
 					${specialty.length !== 0 ? `<p class='topWords'><span class='label'>Specialties:</span> ${specialty}</p>` : ''}
 
@@ -334,10 +334,10 @@
 						<p class='star-ratings'>${'<span></span>'.repeat(stars)}</p>
 					</div>
 					<p class='company-address'>${address}</p>
-					<p class='category-list'>${categories}</p>
 					<hr>
 					<p class='traits'><span class='label'>Top traits:</span> ${firstThreeTraits}</p>
     				<p class='topWords'><span class='label'>Top key words:</span> ${firstThreeWords}</p>
+					${categories.length !== 0 ? `<p class='topWords'><span class='label'>Establishment:</span> ${categories}</p>` : ''}
 					${cuisine.length !== 0 ? `<p class='topWords'><span class='label'>Cuisines:</span> ${cuisine}</p>` : ''}
 					${specialty.length !== 0 ? `<p class='topWords'><span class='label'>Specialties:</span> ${specialty}</p>` : ''}
 					<hr>

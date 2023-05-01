@@ -13,7 +13,7 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
 # Don't worry about the deployment credentials, those are fixed
 # You can use a different DB name if you want to
 MYSQL_USER = "root"
-MYSQL_USER_PASSWORD = "jonaccar96$"
+MYSQL_USER_PASSWORD = ""
 MYSQL_PORT = 3306
 MYSQL_DATABASE = "restaurants"
 
@@ -274,7 +274,7 @@ def generate_favorable(d, s, d_traits_top, s_traits_top, pos_cuisine, pos_specia
             "intro" : "Both "+ d.get("name")+ " and " + s.get("name")+ "...",
             "points": both_favorable
         }
-        favorable_traits.append(both_favorable)
+        favorable_traits.append(both_dict)
     
     # TODO: Incorporate inputs pos_cuisine, pos_specialty, pos_establishment 
     # to favorable_traits when applicable
@@ -295,10 +295,12 @@ def generate_favorable(d, s, d_traits_top, s_traits_top, pos_cuisine, pos_specia
         d_spec = d.get("specialities")
         if pos_specialty in d_spec:
             user_inputted.append(d.get("name") + " serves " + pos_specialty)
-
-    single_dict["pos_inputs"] = user_inputted
-
-    favorable_traits.append(single_dict)
+    if len(user_inputted) > 0:
+        single_dict = {
+            "intro" : "Similar to your inputted preferences...",
+            "points": user_inputted
+        }
+        favorable_traits.append(single_dict)
     return favorable_traits
 
 
@@ -365,7 +367,7 @@ def generate_description(s, d, disliked_restaurant, pos_cuisine, pos_specialty, 
         "points": metrics_lst
     }
     description["favorable"] = {
-        "intro": "Both " + d.get("name") + " and " + s.get("name") + "...",
+        "intro": "You might like " + d.get("name") + " because ...",
         "points": favorable_traits
     }
     description["unfavorable"] = {

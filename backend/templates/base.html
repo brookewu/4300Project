@@ -262,6 +262,9 @@
 			const bgColor = match ? '#fff6f6' : '#f9f9f9';
 			let firstThreeTraits = traits.slice(0, 3).map(trait => trait[0]).join(', ');
 			let firstThreeWords = topWords.slice(0, 3).join(', ');
+			categories = categories.slice().join(', ');
+			cuisine = cuisine.slice().join(', ');
+			specialty = specialty.slice().join(', ');
 
 			if (match) {
 				return `<div class='border box-template' style='background-color: ${bgColor};'>

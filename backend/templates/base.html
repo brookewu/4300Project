@@ -354,11 +354,12 @@
 			var searchParams = new URLSearchParams({
 				preferred: document.getElementById('filter-text-val').value,
 			});
-			searchParams.append("disliked", blacklistVal.value) // # Temp example for search "Marathon Grill"
-			searchParams.append("min_rating", ratingInput.value) // temp value for min_rating
-			searchParams.append("pos_cuisine", cuisineVal.value) // temp value for min_rating
-			searchParams.append("pos_specialty", specialtyVal.value) // temp value for min_rating
-			searchParams.append("pos_establishment", dietaryVal.value) // temp value for min_rating
+			searchParams.append("disliked", blacklistVal.value) 
+			searchParams.append("min_rating", ratingInput.value) 
+			searchParams.append("pos_cuisine", cuisineVal.value) 
+			searchParams.append("pos_specialty", specialtyVal.value) 
+			searchParams.append("pos_establishment", dietaryVal.value) 
+			searchParams.append("trait", tagVal.value)
 			console.log(searchParams.toString())
 			fetch('/results?' + searchParams.toString())
 				.then((response) => response.json())

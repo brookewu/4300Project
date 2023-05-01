@@ -111,7 +111,7 @@ def get_disliked_score_subquery(disliked):
     disliked_score_subquery = f"""IF( scores.company_two IN ({disliked_similar_subquery} ), 0.98 , 1)"""
     return disliked_score_subquery
 
-def get_input_score(trait, liked, diff = .02):
+def get_input_category_score(trait, liked, diff = .02):
     """
     Gets the score for the inputted trait. 
     if liked = False then 'diff' will be subtracted to restaurants that have the trait 
@@ -125,11 +125,10 @@ def get_input_score(trait, liked, diff = .02):
     score_subquery = f"""IF (scores.company_two IN ({liked_subquery}), {diff}, 0) """
 
     return score_subquery
-    
 
 
 def find_top_matches_and_attributes(preferred, disliked, min_rating, pos_cuisine, pos_specialty, 
-                        pos_establishment, neg_cuisine, neg_specialty, neg_establishment, k):
+                        pos_establishment, neg_cuisine, neg_specialty, neg_establishment, trait, k):
     """
     Returns a LegacyCursorResult containing the top k restaurants that are similar
     to [searched_restaurant] and their attributes.
@@ -144,32 +143,55 @@ def find_top_matches_and_attributes(preferred, disliked, min_rating, pos_cuisine
     #             ), 0.98 , 1)"""
     
     disliked_score_subquery = get_disliked_score_subquery(disliked)
-    liked_cuisine = get_input_score(pos_cuisine, True)
-    liked_specialty = get_input_score(pos_specialty, True)
-    liked_establishment = get_input_score(pos_establishment, True)
-    
-    disliked_cuisine = get_input_score(neg_cuisine, False)
-    disliked_specialty = get_input_score(neg_specialty, False)
-    disliked_establishment = get_input_score(neg_establishment, False)
-
+    liked_cuisine = get_input_category_score(pos_cuisine, True)
+    liked_specialty = get_input_category_score(pos_specialty, True)
+    liked_establishment = get_input_category_score(pos_establishment, True)
+    # disliked_cuisine = get_input_category_score(neg_cuisine, False)
+    # disliked_specialty = get_input_category_score(neg_specialty, False)
+    # disliked_establishment = get_input_category_score(neg_establishment, False)
     # TODO: Incorporate inputs pos_cuisine, pos_specialty, pos_establishment, 
     # neg_cuisine, neg_specialty, neg_establishment to weights
     # done ???
-    
-    query_sql = f"""SELECT company_two as name, address, postal_code, stars, 
+    if trait != " ":
+        subquery = f""" SELECT company_two as name, address, postal_code, stars, 
         categories, top_10_words,
         crunchy, morning, fishy, nightlife, hearty, meaty, homey, fresh, flavorful,
         jaccard_score, cosine_score, svd_score, 
     ((0.3 * jaccard_score) + (0.35 * cosine_score) + (0.3 * svd_score) + 
-    {disliked_score_subquery} + {liked_cuisine} + {liked_specialty} + {liked_establishment}
-    + {disliked_cuisine} + {disliked_specialty} + {disliked_establishment} ) 
-    as combined_score 
-    FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) 
+    + (0.3 * {trait}) + {disliked_score_subquery} + {liked_cuisine} + {liked_specialty} + {liked_establishment} ) 
+    as combined_score """
+
+    else: 
+        subquery = f""" SELECT company_two as name, address, postal_code, stars, 
+        categories, top_10_words,
+        crunchy, morning, fishy, nightlife, hearty, meaty, homey, fresh, flavorful,
+        jaccard_score, cosine_score, svd_score, 
+    ((0.3 * jaccard_score) + (0.35 * cosine_score) + (0.3 * svd_score) + 
+     + {disliked_score_subquery} + {liked_cuisine} + {liked_specialty} + {liked_establishment} ) 
+    as combined_score """
+
+    # query_sql = f"""SELECT company_two as name, address, postal_code, stars, 
+    #     categories, top_10_words,
+    #     crunchy, morning, fishy, nightlife, hearty, meaty, homey, fresh, flavorful,
+    #     jaccard_score, cosine_score, svd_score, 
+    # ((0.3 * jaccard_score) + (0.35 * cosine_score) + (0.3 * svd_score) + 
+    # + (0.3 * {trait}) + 
+    # {disliked_score_subquery} + {liked_cuisine} + {liked_specialty} + {liked_establishment} ) 
+    # as combined_score 
+    # FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) 
+    # WHERE LOWER( scores.company_one ) LIKE '{preferred.lower()}' 
+    # AND LOWER( scores.company_two ) NOT LIKE '{disliked.lower()}' 
+    # AND attributes.stars >= {min_rating}
+    # ORDER BY combined_score
+    # DESC limit {k} """
+
+    query_sql =  f"""{subquery} FROM scores LEFT OUTER JOIN attributes ON (scores.company_two = attributes.name) 
     WHERE LOWER( scores.company_one ) LIKE '{preferred.lower()}' 
     AND LOWER( scores.company_two ) NOT LIKE '{disliked.lower()}' 
     AND attributes.stars >= {min_rating}
     ORDER BY combined_score
     DESC limit {k} """
+
     data = mysql_engine.query_selector(query_sql)
     return data
 
@@ -248,7 +270,19 @@ def generate_metrics(d, s, d_traits, s_traits_top):
 
     return metrics_lst
 
-def generate_favorable(d, s, d_traits_top, s_traits_top, pos_cuisine, pos_specialty, pos_establishment,):
+
+def get_trait_score(d,  trait):
+    # assumes trait is not " "
+    d_traits = d.get("traits")
+   
+    for d_trait, d_score in d_traits: 
+        if d_trait == trait:
+            break
+    
+    return d_score * 100
+
+
+def generate_favorable(d, s, d_traits_top, s_traits_top, pos_cuisine, pos_specialty, pos_establishment, trait):
     """
     Returns a list two dictionaries. One for favorable traits between both the 
     input and output and another for user-input preferances.
@@ -298,6 +332,11 @@ def generate_favorable(d, s, d_traits_top, s_traits_top, pos_cuisine, pos_specia
         d_spec = d.get("specialities")
         if pos_specialty in d_spec:
             user_inputted.append(d.get("name") + " serves " + pos_specialty)
+
+    if trait != " ":
+        score = get_trait_score(d, trait)
+        if score > 50 : user_inputted.append(d.get("name")+ " is " + str(round(score)) + "% match to " + trait)
+
     if len(user_inputted) > 0:
         single_dict = {
             "intro" : "Similar to your inputted preferences...",
@@ -307,7 +346,7 @@ def generate_favorable(d, s, d_traits_top, s_traits_top, pos_cuisine, pos_specia
     return favorable_traits
 
 
-def generate_unfavorable(d, s, disliked_restaurant, neg_cuisine, neg_specialty, neg_establishment):
+def generate_unfavorable(d, s, disliked_restaurant, neg_cuisine, neg_specialty, neg_establishment, trait):
     """
     Returns a list two dictionaries. One for favorable traits between both the 
     input and output and another for user-input preferances.
@@ -321,36 +360,41 @@ def generate_unfavorable(d, s, disliked_restaurant, neg_cuisine, neg_specialty, 
         sim_dislike = dict(x)
         if d.get("name") == sim_dislike.get("name"):
             unfavorable_traits.append("It is similar to the disliked restaurant " + disliked_restaurant)
+
+    
     
     # TODO: Incorporate inputs neg_cuisine, neg_specialty, neg_establishment
     # to unfavorable_traits when applicable
     # done ??
 
-    # single_dict = {}
-    # user_inputted = []
-    # if neg_cuisine != "":
-    #     d_cuisines = d.get("cuisines")
-    #     if neg_cuisine in d_cuisines:
-    #         user_inputted.append(d.get("name") + " features " + neg_cuisine + " cuisine")
+    single_dict = {}
+    user_inputted = []
+    if neg_cuisine != "":
+        d_cuisines = d.get("cuisines")
+        if neg_cuisine in d_cuisines:
+            user_inputted.append(d.get("name") + " features " + neg_cuisine + " cuisine")
         
-    # if neg_establishment != "":
-    #     d_est = d.get("establishments")
-    #     if neg_establishment in d_est:
-    #         user_inputted.append(d.get("name") + " is a " + neg_establishment)
+    if neg_establishment != "":
+        d_est = d.get("establishments")
+        if neg_establishment in d_est:
+            user_inputted.append(d.get("name") + " is a " + neg_establishment)
 
-    # if neg_specialty != "":
-    #     d_spec = d.get("specialities")
-    #     if neg_specialty in d_spec:
-    #         user_inputted.append(d.get("name") + " serves " + neg_specialty)
+    if neg_specialty != "":
+        d_spec = d.get("specialities")
+        if neg_specialty in d_spec:
+            user_inputted.append(d.get("name") + " serves " + neg_specialty)
 
-    # single_dict["neg_inputs"] = user_inputted
+    if trait != " ":
+        score = get_trait_score(d, trait)
+        if score <= 50 : user_inputted.append(d.get("name")+ " is " + str(round(score)) + "% match to " + trait)
+    single_dict["neg_inputs"] = user_inputted
 
     # unfavorable_traits.append(single_dict)
     return unfavorable_traits
 
 
 
-def generate_description(s, d, disliked_restaurant, pos_cuisine, pos_specialty, pos_establishment, neg_cuisine, neg_specialty, neg_establishment):
+def generate_description(s, d, disliked_restaurant, pos_cuisine, pos_specialty, pos_establishment, neg_cuisine, neg_specialty, neg_establishment, trait):
     """
     Returns a description of facts, favorable, and unfavorable aspects of the outputted restaurant.
     """
@@ -361,8 +405,8 @@ def generate_description(s, d, disliked_restaurant, pos_cuisine, pos_specialty, 
     d_traits_top = [t[0] for t in d_traits][0:3]
 
     metrics_lst = generate_metrics(d, s, d_traits, s_traits_top)
-    favorable_traits = generate_favorable(d, s, d_traits_top, s_traits_top, pos_cuisine, pos_specialty, pos_establishment,)
-    unfavorable_traits = generate_unfavorable(d, s, disliked_restaurant, neg_cuisine, neg_specialty, neg_establishment)
+    favorable_traits = generate_favorable(d, s, d_traits_top, s_traits_top, pos_cuisine, pos_specialty, pos_establishment, trait)
+    unfavorable_traits = generate_unfavorable(d, s, disliked_restaurant, neg_cuisine, neg_specialty, neg_establishment, trait)
 
     # Build final description dictionary
     description["facts"] = {
@@ -380,7 +424,7 @@ def generate_description(s, d, disliked_restaurant, pos_cuisine, pos_specialty, 
     
     return description
 
-def serialize_result_data(searched_attributes_dict, result_data, disliked_restaurant, pos_cuisine, pos_specialty, pos_establishment, neg_cuisine, neg_specialty, neg_establishment):
+def serialize_result_data(searched_attributes_dict, result_data, disliked_restaurant, pos_cuisine, pos_specialty, pos_establishment, neg_cuisine, neg_specialty, neg_establishment, trait):
     """
     Returns a reformatted result data. Formatted in a list where the first index
     contains a dictionary of attribute information for the searched restaurant and is followed by a
@@ -393,13 +437,13 @@ def serialize_result_data(searched_attributes_dict, result_data, disliked_restau
     matches = []
     for x in result_data:
         d = reformat_attributes(dict(x))
-        d["description"] = generate_description(searched_attributes_dict, d, disliked_restaurant, pos_cuisine, pos_specialty, pos_establishment, neg_cuisine, neg_specialty, neg_establishment,)
+        d["description"] = generate_description(searched_attributes_dict, d, disliked_restaurant, pos_cuisine, pos_specialty, pos_establishment, neg_cuisine, neg_specialty, neg_establishment, trait)
         matches.append(d)
     serialized.append(matches)
     return serialized
 
 count = 0
-def sql_search(input_name, disliked, min_rating, pos_cuisine, pos_specialty, pos_establishment, neg_cuisine, neg_specialty, neg_establishment, k):
+def sql_search(input_name, disliked, min_rating, pos_cuisine, pos_specialty, pos_establishment, neg_cuisine, neg_specialty, neg_establishment, trait, k):
     """
     example return:
     {"name": "B&B Breakfast and Lunch", 
@@ -420,16 +464,16 @@ def sql_search(input_name, disliked, min_rating, pos_cuisine, pos_specialty, pos
     disliked_restaurant = get_restaurant_name(disliked)
 
     # Get matching restaurants and their attributes for the searched restaurant
-    result_data = find_top_matches_and_attributes(searched_restaurant, disliked_restaurant, min_rating, pos_cuisine, pos_specialty, pos_establishment, neg_cuisine, neg_specialty, neg_establishment, k)
+    result_data = find_top_matches_and_attributes(searched_restaurant, disliked_restaurant, min_rating, pos_cuisine, pos_specialty, pos_establishment, neg_cuisine, neg_specialty, neg_establishment, trait, k)
     
     # Get attributes for the searched restaurant
     searched_attributes_dict = get_restaurant_attributes(searched_restaurant)
 
     # Serialize results for json response
-    serialized = serialize_result_data(searched_attributes_dict, result_data, disliked_restaurant, pos_cuisine, pos_specialty, pos_establishment, neg_cuisine, neg_specialty, neg_establishment,)
+    serialized = serialize_result_data(searched_attributes_dict, result_data, disliked_restaurant, pos_cuisine, pos_specialty, pos_establishment, neg_cuisine, neg_specialty, neg_establishment, trait)
     global count
-    if (count == 0):
-        print(json.dumps(serialized, default=str))
+    # if (count == 0):
+    #     print(json.dumps(serialized, default=str))
     count = 1
     return json.dumps(serialized, default=str)
 
@@ -471,11 +515,12 @@ def restaurant_search():
     pos_cuisine = request.args.get("pos_cuisine") or " "
     pos_specialty = request.args.get("pos_specialty") or " "
     pos_establishment = request.args.get("pos_establishment") or " "
+    trait = request.args.get("trait") or " "
     neg_cuisine = request.args.get("neg_cuisine") or " "
     neg_specialty = request.args.get("neg_specialty") or " "
     neg_establishment = request.args.get("neg_establishment") or " "
 
-    return sql_search(preferred, disliked, min_rating, pos_cuisine, pos_specialty, pos_establishment, neg_cuisine, neg_specialty, neg_establishment, 5)
+    return sql_search(preferred, disliked, min_rating, pos_cuisine, pos_specialty, pos_establishment, neg_cuisine, neg_specialty, neg_establishment, trait, 5)
 
 # Available categories
 @app.route("/cuisines")

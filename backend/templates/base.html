@@ -20,7 +20,9 @@
 				<h1 id="title-color">CuisineCheck</h1>
 				<p id="small-title">Philadelphia</p>
 			</div>
-			<div class="search-box" onclick="sendFocus('filter-text-val')">
+			<div class="search-box" 
+				onclick="sendFocus('filter-text-val')" 
+				onkeyup="editDistance('get_names', 'filter-text-val','restaurant-list')">
 				<input autocomplete="off" placeholder="Search for your favorite restaurant" id="filter-text-val"
 					onkeyup="handleKeyUp(event)" />
 				<div class="restaurant-list-container">
@@ -131,34 +133,40 @@
 			filterText();
 		});
 
+		function editDistance(route, input, list) {
+			fetch(route)
+				.then((response) => response.json())
+				.then((data) => {
+					const text = document.getElementById(input).value;
+					if (text == "") {
+						const dropdown = document.getElementById(list);
+						dropdown.innerHTML = '';
+						return;
+					}
 
-		var restaurantNames = []
+					const suggestions = data.filter((name) =>
+						name.toLowerCase().startsWith(text.toLowerCase())
+					);
 
-		fetch("get_names")
-			.then((response) => response.json())
-			.then((data) => {
-				restaurantNames = data
-			})
+					suggestions.sort();
 
-		const input = document.getElementById('filter-text-val');
-		const suggestionsContainer = document.getElementById('restaurant-list');
+					const topNames = suggestions.slice(0, 5);
 
-		filterTextVal.addEventListener('input', function () {
-			const userInput = input.value.toLowerCase();
-			const filteredRestaurants = restaurantNames.filter(restaurantName => restaurantName.toLowerCase().startsWith(userInput));
+					const dropdown = document.getElementById(list);
 
-			suggestionsContainer.innerHTML = '';
+					dropdown.innerHTML = '';
 
-			filteredRestaurants.forEach(restaurantName => {
-				const suggestion = document.createElement('div');
-				suggestion.innerText = restaurantName;
-				suggestion.addEventListener('click', function () {
-					input.value = restaurantName;
-					suggestionsContainer.innerHTML = '';
-				});
-				suggestionsContainer.appendChild(suggestion);
-			});
-		});
+					topNames.forEach((name) => {
+						const menuItem = document.createElement('li');
+						menuItem.classList.add('dropdown-item');
+						menuItem.href = '#';
+						menuItem.textContent = name;
+						dropdown.appendChild(menuItem);
+					});
+				})
+		}
+
+			
 
 		cuisineList.addEventListener('click', (event) => {
 			cuisineVal.value = event.target.textContent.trim();
@@ -206,68 +214,8 @@
 				})
 		}
 
-		function editDistance(route, input, list) {
-			fetch(route)
-				.then((response) => response.json())
-				.then((data) => {
-					const text = document.getElementById(input).value;
-					if (text == "") {
-						const dropdown = document.getElementById(list);
-						dropdown.innerHTML = '';
-						return;
-					}
-					const distances = data.map((name) => ({
-						name,
-						distance: editDistanceHelper(name.toLowerCase(), text.toLowerCase())
-					}));
 
-					distances.sort((a, b) => a.distance - b.distance);
-
-					const topNames = distances.slice(0, 5).map((d) => d.name);
-
-					const dropdown = document.getElementById(list);
-
-					dropdown.innerHTML = '';
-
-					topNames.forEach((name) => {
-						const menuItem = document.createElement('li');
-						menuItem.classList.add('dropdown-item');
-						menuItem.href = '#';
-						menuItem.textContent = name;
-						dropdown.appendChild(menuItem);
-
-					});
-				})
-		}
-
-		function editDistanceHelper(str1, str2) {
-			const m = str1.length;
-			const n = str2.length;
-			const dp = [];
-
-			for (let i = 0; i <= m; i++) {
-				dp[i] = [];
-				for (let j = 0; j <= n; j++) {
-					dp[i][j] = 0;
-				}
-			}
-			for (let i = 1; i <= m; i++) {
-				dp[i][0] = i;
-			}
-			for (let j = 1; j <= n; j++) {
-				dp[0][j] = j;
-			}
-			for (let i = 1; i <= m; i++) {
-				for (let j = 1; j <= n; j++) {
-					if (str1[i - 1] === str2[j - 1]) {
-						dp[i][j] = dp[i - 1][j - 1];
-					} else {
-						dp[i][j] = 2 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
-					}
-				}
-			}
-			return dp[m][n];
-		}
+		
 
 		// Get the slider input element and rating-value span element
 		const ratingInput = document.getElementById('rating-input');
@@ -376,7 +324,7 @@
 		function filterText() {
 			document.getElementById('answer-box').innerHTML = '';
 			const answerBox = document.getElementById('answer-box');
-			answerBox.innerHTML = '<div id="loading-text">Loading...</div>';
+			answerBox.innerHTML = '<div id="loading-text1">Loading...</div>';
 
 			var searchParams = new URLSearchParams({
 				preferred: document.getElementById('filter-text-val').value,

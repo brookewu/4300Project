@@ -262,7 +262,7 @@ input[type='text'] {
 
 #restaurant-list {
 	position: absolute;
-	width: 25%;
+	width: 41%;
 	margin: 0;
 	padding: 0;
 	list-style: none;
@@ -279,6 +279,8 @@ input[type='text'] {
 	padding: 8px;
 	cursor: pointer;
 	font-family: 'Courier', sans-serif;
+	display: flex;
+	justify-content: center;
 }
 
 #restaurant-list li:hover {
@@ -287,12 +289,10 @@ input[type='text'] {
 
 #cuisine-list {
 	position: absolute;
-	width: 50%;
+	width: 90%;
 	margin: 0;
 	padding: 0;
-	list-style: none;
 	background-color: #fff;
-
 	border-top: none;
 	max-height: 200px;
 	overflow-y: auto;
@@ -304,6 +304,9 @@ input[type='text'] {
 	padding: 8px;
 	cursor: pointer;
 	font-family: 'Courier', sans-serif;
+	align-items: center;
+	display: flex;
+	justify-content: center;
 }
 
 #cuisine-list li:hover {
@@ -312,7 +315,7 @@ input[type='text'] {
 
 #specialty-list {
 	position: absolute;
-	width: 50%;
+	width: 90%;
 	margin: 0;
 	padding: 0;
 	list-style: none;
@@ -329,6 +332,8 @@ input[type='text'] {
 	padding: 8px;
 	cursor: pointer;
 	font-family: 'Courier', sans-serif;
+	display: flex;
+	justify-content: center;
 }
 
 #specialty-list li:hover {
@@ -337,7 +342,7 @@ input[type='text'] {
 
 #dietary-list {
 	position: absolute;
-	width: 50%;
+	width: 90%;
 	margin: 0;
 	padding: 0;
 	list-style: none;
@@ -354,6 +359,8 @@ input[type='text'] {
 	padding: 8px;
 	cursor: pointer;
 	font-family: 'Courier', sans-serif;
+	display: flex;
+	justify-content: center;
 }
 
 #dietary-list li:hover {
@@ -362,7 +369,7 @@ input[type='text'] {
 
 #tag-list {
 	position: absolute;
-	width: 50%;
+	width: 90%;
 	margin: 0;
 	padding: 0;
 	list-style: none;
@@ -380,6 +387,8 @@ input[type='text'] {
 	padding: 8px;
 	cursor: pointer;
 	font-family: 'Courier', sans-serif;
+	display: flex;
+	justify-content: center;
 }
 
 #tag-list li:hover {
@@ -388,7 +397,7 @@ input[type='text'] {
 
 #blacklist-list {
 	position: absolute;
-	width: 50%;
+	width: 90%;
 	margin: 0;
 	padding: 0;
 	list-style: none;
@@ -405,34 +414,13 @@ input[type='text'] {
 #blacklist-list li {
 	padding: 8px;
 	cursor: pointer;
+	display: flex;
+	justify-content: center;
 	font-family: 'Courier', sans-serif;
 }
 
 #blacklist-list li:hover {
 	background-color: #f1f1f1;
-}
-
-
-.restaurant-list-container {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	min-height: 100vh;
-	text-align: center;
-}
-
-#restaurant-list {
-	position: absolute;
-	left: 50%;
-	transform: translateX(-50%);
-	width: 100%;
-	max-width: 600px;
-	z-index: 1;
-	background-color: white;
-	border: 1px solid rgba(0, 0, 0, 0.1);
-	border-radius: 4px;
-	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
 #loading-text {
@@ -443,4 +431,14 @@ input[type='text'] {
 	font-size: x-large;
 	font-weight: bold;
 	background-color: white;
+}
+
+#loading-text1 {
+	font-size: 24px;
+	font-weight: bold;
+	font-family: 'Courier New', Courier, monospace;
+	color: black;
+	text-align: center;
+	padding: 20px;
+	background-color: transparent; /* Light grey background */
 }

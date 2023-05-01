@@ -80,8 +80,6 @@ def get_restaurant_name(query):
         break
 
     # Reformat serached restauarnt string to allow sql comparison with special characters
-    # matched_restaurant = matched_restaurant.replace("'", "\\'")
-    # matched_restaurant = matched_restaurant.replace("&", "\&")
     matched_restaurant = re.sub(r"([\'&])", r'\\\1', matched_restaurant)
 
     return matched_restaurant
@@ -149,9 +147,7 @@ def find_top_matches_and_attributes(preferred, disliked, min_rating, pos_cuisine
     # disliked_cuisine = get_input_category_score(neg_cuisine, False)
     # disliked_specialty = get_input_category_score(neg_specialty, False)
     # disliked_establishment = get_input_category_score(neg_establishment, False)
-    # TODO: Incorporate inputs pos_cuisine, pos_specialty, pos_establishment, 
-    # neg_cuisine, neg_specialty, neg_establishment to weights
-    # done ???
+
     if trait != " ":
         subquery = f""" SELECT company_two as name, address, postal_code, stars, 
         categories, top_10_words,
@@ -312,10 +308,7 @@ def generate_favorable(d, s, d_traits_top, s_traits_top, pos_cuisine, pos_specia
             "points": both_favorable
         }
         favorable_traits.append(both_dict)
-    
-    # TODO: Incorporate inputs pos_cuisine, pos_specialty, pos_establishment 
-    # to favorable_traits when applicable
-    # done??
+
     single_dict = {}
     user_inputted = []
     if pos_cuisine != "":
@@ -360,12 +353,6 @@ def generate_unfavorable(d, s, disliked_restaurant, neg_cuisine, neg_specialty, 
         sim_dislike = dict(x)
         if d.get("name") == sim_dislike.get("name"):
             unfavorable_traits.append("It is similar to the disliked restaurant " + disliked_restaurant)
-
-    
-    
-    # TODO: Incorporate inputs neg_cuisine, neg_specialty, neg_establishment
-    # to unfavorable_traits when applicable
-    # done ??
 
     single_dict = {}
     user_inputted = []

@@ -105,8 +105,6 @@
 						isFiltering = false;
 					}, 1000);
 				}
-			} else {
-				editDistance("get_names", "filter-text-val", "restaurant-list");
 			}
 		}
 
@@ -131,6 +129,35 @@
 			document.getElementById('filter-text-val').value = event.target.textContent.trim();
 			restaurantList.innerHTML = '';
 			filterText();
+		});
+
+
+		var restaurantNames = []
+
+		fetch("get_names")
+			.then((response) => response.json())
+			.then((data) => {
+				restaurantNames = data
+			})
+
+		const input = document.getElementById('filter-text-val');
+		const suggestionsContainer = document.getElementById('restaurant-list');
+
+		filterTextVal.addEventListener('input', function () {
+			const userInput = input.value.toLowerCase();
+			const filteredRestaurants = restaurantNames.filter(restaurantName => restaurantName.toLowerCase().startsWith(userInput));
+
+			suggestionsContainer.innerHTML = '';
+
+			filteredRestaurants.forEach(restaurantName => {
+				const suggestion = document.createElement('div');
+				suggestion.innerText = restaurantName;
+				suggestion.addEventListener('click', function () {
+					input.value = restaurantName;
+					suggestionsContainer.innerHTML = '';
+				});
+				suggestionsContainer.appendChild(suggestion);
+			});
 		});
 
 		cuisineList.addEventListener('click', (event) => {
@@ -361,6 +388,7 @@
 			searchParams.append("pos_establishment", dietaryVal.value) 
 			searchParams.append("trait", tagVal.value)
 			console.log(searchParams.toString())
+			var inputRestaurant = document.createElement('div');
 			fetch('/results?' + searchParams.toString())
 				.then((response) => response.json())
 				.then((data) =>
@@ -368,12 +396,11 @@
 						document.getElementById('answer-box').innerHTML = '';
 						if (index == 0) {
 							// Query company
-							//console.log('User query company info: ', row);
+							console.log('User query company info: ', row);
 							if (row.address == null) {
 								return;
 							}
-							let tempDiv = document.createElement('div');
-							tempDiv.innerHTML = answerBoxTemplate(
+							inputRestaurant.innerHTML = answerBoxTemplate(
 								row.name,
 								row.address,
 								row.stars,
@@ -389,9 +416,17 @@
 								row.cuisines,
 								row.specialities,
 								true
-							); // TODO: Change to show more attributes than just name and useful review
-							document.getElementById('answer-box').appendChild(tempDiv);
+							);
 						} else {
+							// adding labels for result sections and query restaurant
+							var input_section = document.createElement('div');
+							input_section.innerHTML = '<div id="loading-text">Restaurants similar to...</div>';
+							document.getElementById('answer-box').appendChild(input_section);
+							document.getElementById('answer-box').appendChild(inputRestaurant);
+							var result_section = document.createElement('div');
+							result_section.innerHTML = '<div id="loading-text">Results</div>';
+							document.getElementById('answer-box').appendChild(result_section);
+
 							row.forEach((r, i) => {
 								// Matched companies
 								console.log('Match #', i + 1, ' company info: ', r);
@@ -414,6 +449,7 @@
 									false
 								); // TODO: Change to show more attributes than just name and useful review
 								document.getElementById('answer-box').appendChild(tempDiv);
+								console.log("index", index, document.getElementById('answer-box'))
 							});
 						}
 					})

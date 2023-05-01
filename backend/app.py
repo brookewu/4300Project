@@ -296,15 +296,15 @@ def generate_favorable(d, s, d_traits_top, s_traits_top, pos_cuisine, pos_specia
     
     both_favorable = []
     if len(intersection_cuisines) != 0:
-        both_favorable.append("Feature cuisine from " + ",".join(list(intersection_cuisines)))
+        both_favorable.append("Feature cuisine from " + ", ".join(list(intersection_cuisines)))
     if len(intersection_specialities) != 0:
-        both_favorable.append("Offer specialities like " + ",".join(list(intersection_specialities)))
+        both_favorable.append("Offer specialities like " + ", ".join(list(intersection_specialities)))
     if len(intersection_establishments) != 0:
-        both_favorable.append("Considered as " + ",".join(list(intersection_establishments)))
+        both_favorable.append("Considered as " + ", ".join(list(intersection_establishments)))
     if len(intersection_top_words) != 0:
-        both_favorable.append("Are commonly described as " + ",".join(list(intersection_top_words)))
+        both_favorable.append("Are commonly described as " + ", ".join(list(intersection_top_words)))
     if len(intersection_top_traits) != 0:
-        both_favorable.append("Share traits " + ",".join(list(intersection_top_traits)))
+        both_favorable.append("Share traits " + ", ".join(list(intersection_top_traits)))
 
     if len(both_favorable) > 0:
         both_dict = {

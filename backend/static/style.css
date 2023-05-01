@@ -441,4 +441,6 @@ input[type='text'] {
 	justify-content: center;
 	font-family: 'Courier', sans-serif;
 	font-size: x-large;
+	font-weight: bold;
+	background-color: white;
 }

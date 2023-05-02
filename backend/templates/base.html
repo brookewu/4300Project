@@ -338,7 +338,7 @@
 			searchParams.append("pos_specialty", specialtyVal.value)
 			searchParams.append("pos_establishment", dietaryVal.value)
 			searchParams.append("trait", tagVal.value)
-			console.log(searchParams.toString())
+			// console.log(searchParams.toString())
 			var inputRestaurant = document.createElement('div');
 			fetch('/results?' + searchParams.toString())
 				.then((response) => response.json())
@@ -347,7 +347,7 @@
 						document.getElementById('answer-box').innerHTML = '';
 						if (index == 0) {
 							// Query company
-							console.log('User query company info: ', row);
+							// console.log('User query company info: ', row);
 							
 							if (row == null) {
 								answerBox.innerHTML = '<div id="loading-text1">No results</div>';
@@ -384,7 +384,7 @@
 
 							row.forEach((r, i) => {
 								// Matched companies
-								console.log('Match #', i + 1, ' company info: ', r);
+								// console.log('Match #', i + 1, ' company info: ', r);
 								let tempDiv = document.createElement('div');
 								tempDiv.innerHTML = answerBoxTemplate(
 									r.name,
@@ -404,7 +404,7 @@
 									false
 								); // TODO: Change to show more attributes than just name and useful review
 								document.getElementById('answer-box').appendChild(tempDiv);
-								console.log("index", index, document.getElementById('answer-box'))
+								// console.log("index", index, document.getElementById('answer-box'))
 							});
 						}
 					})

@@ -356,7 +356,6 @@ def generate_unfavorable(d, s, disliked_restaurant, neg_cuisine, neg_specialty, 
         if d.get("name") == sim_dislike.get("name"):
             unfavorable_traits.append("It is similar to the disliked restaurant " + disliked_restaurant)
 
-    single_dict = {}
     user_inputted = []
     if neg_cuisine != "":
         d_cuisines = d.get("cuisines")
@@ -375,10 +374,10 @@ def generate_unfavorable(d, s, disliked_restaurant, neg_cuisine, neg_specialty, 
 
     if trait != " ":
         score = get_trait_score(d, trait)
-        if score <= 50 : user_inputted.append(d.get("name")+ " is " + str(round(score)) + "% match to " + trait)
-    single_dict["neg_inputs"] = user_inputted
+        if score <= 50 : 
+            user_inputted.append(d.get("name")+ " is only " + str(round(score)) + "% match to " + trait)
+            unfavorable_traits.append(user_inputted)
 
-    # unfavorable_traits.append(single_dict)
     return unfavorable_traits
 
 

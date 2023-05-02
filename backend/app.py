@@ -375,7 +375,7 @@ def generate_unfavorable(d, s, disliked_restaurant, neg_cuisine, neg_specialty, 
     if trait != " ":
         score = get_trait_score(d, trait)
         if score <= 50 : 
-            user_inputted.append(d.get("name")+ " is only " + str(round(score)) + "% match to " + trait)
+            user_inputted.append(d.get("name")+ " is only a " + str(round(score)) + "% match to " + trait)
             unfavorable_traits.append(user_inputted)
 
     return unfavorable_traits
